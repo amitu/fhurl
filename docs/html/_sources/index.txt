@@ -4,7 +4,7 @@ Django Generic Form Handler View -- fhurl
 `fhurl.form_handler` is a generic view that can be used for handling
 forms.
 
-.. function:: dutils.utils.form_handler(request, form_cls, require_login=False, block_get=False, next=None, template=None, login_url=None, pass_request=True, ajax=False, validate_only=False)
+.. function:: fhurl.form_handler(request, form_cls, require_login=False, block_get=False, next=None, template=None, login_url=None, pass_request=True, ajax=False, validate_only=False)
 
     Some ajax heavy apps require a lot of views that are merely a wrapper
     around the form. This generic view can be used for them.
@@ -80,7 +80,7 @@ such cases, do not pass `next` and let form.save() return the URL.
 
     urlpatterns = patterns('',
         url(r'^create-book/$',
-           "dutils.utils.form_handler",
+           "fhurl.form_handler",
            {
                'template': 'create-book.html',
                "form_cls": CreateBookForm,
@@ -110,7 +110,7 @@ this case make sure your Form can take request as the first parameter, and set
 
     urlpatterns = patterns('',
         url(r'^create-book/$',
-           "dutils.utils.form_handler",
+           "fhurl.form_handler",
            {
                'template': 'create-book.html',
                "form_cls": CreateBookForm,
@@ -121,11 +121,11 @@ this case make sure your Form can take request as the first parameter, and set
     )
 
 
-|utils| comes with a utility class derived from Form_ known as `RequestForm`.
+|fhurl| comes with a utility class derived from Form_ known as `RequestForm`.
 This form takes care of storing the request passed in constructor, so the above
 form can be re written as::
 
-    class CreateBookForm(dutils.utils.RequestForm):
+    class CreateBookForm(fhurl.RequestForm):
         title = forms.CharField(max_length=50)
 
         def save(self):
@@ -134,7 +134,7 @@ form can be re written as::
 
     urlpatterns = patterns('',
         url(r'^create-book/$',
-           "dutils.utils.form_handler",
+           "fhurl.form_handler",
            {
                'template': 'create-book.html',
                "form_cls": CreateBookForm,
@@ -166,7 +166,7 @@ Here is how to handle this situation::
 
     urlpatterns = patterns('',
         url(r'^create-book/$',
-           "dutils.utils.form_handler",
+           "fhurl.form_handler",
            {
                'template': 'create-book.html',
                "form_cls": CreateBookForm,
@@ -246,7 +246,7 @@ loading the book and doing validation in it::
 
     from django import forms
 
-    class BookEditForm(utils.RequestForm):
+    class BookEditForm(fhrul.RequestForm):
         title = forms.CharField(max_length=50)
 
         def init(self, book_id):
@@ -331,7 +331,7 @@ redirected to that user.
 
 Eg::
 
-    class CreateBook(utils.RequestForm):
+    class CreateBook(fhurl.RequestForm):
         # fields
         # validation
 
@@ -345,14 +345,14 @@ Eg::
 This Is Too Much Typing
 -----------------------
 
-|dutils| comes with a utility function `fhurl`, that can be used
+|fhurl| comes with a utility function `fhurl`, that can be used
 `django.conf.urls.defaults.url`.
 
 Original urlconf::
 
     urlpatterns = patterns('',
         url(r'^create-book/$',
-           "dutils.utils.form_handler",
+           "fhurl.form_handler",
            {
                'template': 'create-book.html',
                "form_cls": CreateBookForm,

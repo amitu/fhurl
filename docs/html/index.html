@@ -45,8 +45,8 @@
 <p><cite>fhurl.form_handler</cite> is a generic view that can be used for handling
 forms.</p>
 <dl class="function">
-<dt id="dutils.utils.form_handler">
-<tt class="descclassname">dutils.utils.</tt><tt class="descname">form_handler</tt><big>(</big><em>request</em>, <em>form_cls</em>, <em>require_login=False</em>, <em>block_get=False</em>, <em>next=None</em>, <em>template=None</em>, <em>login_url=None</em>, <em>pass_request=True</em>, <em>ajax=False</em>, <em>validate_only=False</em><big>)</big><a class="headerlink" href="#dutils.utils.form_handler" title="Permalink to this definition">¶</a></dt>
+<dt id="fhurl.form_handler">
+<tt class="descclassname">fhurl.</tt><tt class="descname">form_handler</tt><big>(</big><em>request</em>, <em>form_cls</em>, <em>require_login=False</em>, <em>block_get=False</em>, <em>next=None</em>, <em>template=None</em>, <em>login_url=None</em>, <em>pass_request=True</em>, <em>ajax=False</em>, <em>validate_only=False</em><big>)</big><a class="headerlink" href="#fhurl.form_handler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Some ajax heavy apps require a lot of views that are merely a wrapper
 around the form. This generic view can be used for them.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -129,7 +129,7 @@ such cases, do not pass <cite>next</cite> and let form.save() return the URL.
 
 <span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
     <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
-       <span class="s">&quot;dutils.utils.form_handler&quot;</span><span class="p">,</span>
+       <span class="s">&quot;fhurl.form_handler&quot;</span><span class="p">,</span>
        <span class="p">{</span>
            <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
            <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
@@ -158,7 +158,7 @@ this case make sure your Form can take request as the first parameter, and set
 
 <span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
     <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
-       <span class="s">&quot;dutils.utils.form_handler&quot;</span><span class="p">,</span>
+       <span class="s">&quot;fhurl.form_handler&quot;</span><span class="p">,</span>
        <span class="p">{</span>
            <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
            <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
@@ -169,10 +169,10 @@ this case make sure your Form can take request as the first parameter, and set
 <span class="p">)</span>
 </pre></div>
 </div>
-<p><a href="#id1"><span class="problematic" id="id2">|utils|</span></a> comes with a utility class derived from <a href="#id5"><span class="problematic" id="id6">Form_</span></a> known as <cite>RequestForm</cite>.
+<p><a href="#id1"><span class="problematic" id="id2">|fhurl|</span></a> comes with a utility class derived from <a href="#id5"><span class="problematic" id="id6">Form_</span></a> known as <cite>RequestForm</cite>.
 This form takes care of storing the request passed in constructor, so the above
 form can be re written as:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">CreateBookForm</span><span class="p">(</span><span class="n">dutils</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">RequestForm</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">CreateBookForm</span><span class="p">(</span><span class="n">fhurl</span><span class="o">.</span><span class="n">RequestForm</span><span class="p">):</span>
     <span class="n">title</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -181,7 +181,7 @@ form can be re written as:</p>
 
 <span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
     <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
-       <span class="s">&quot;dutils.utils.form_handler&quot;</span><span class="p">,</span>
+       <span class="s">&quot;fhurl.form_handler&quot;</span><span class="p">,</span>
        <span class="p">{</span>
            <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
            <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
@@ -212,7 +212,7 @@ not have permission to create books.</p>
 
 <span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
     <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
-       <span class="s">&quot;dutils.utils.form_handler&quot;</span><span class="p">,</span>
+       <span class="s">&quot;fhurl.form_handler&quot;</span><span class="p">,</span>
        <span class="p">{</span>
            <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
            <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
@@ -290,7 +290,7 @@ URLs, instead of request parameters, to initialize the form.</p>
 loading the book and doing validation in it:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">forms</span>
 
-<span class="k">class</span> <span class="nc">BookEditForm</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">RequestForm</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">BookEditForm</span><span class="p">(</span><span class="n">fhrul</span><span class="o">.</span><span class="n">RequestForm</span><span class="p">):</span>
     <span class="n">title</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">book_id</span><span class="p">):</span>
@@ -364,7 +364,7 @@ called, and its output is returned to user for ajax invocation, and .save() can
 safely return the permalink of the book, which will lead to browser getting
 redirected to that user.</p>
 <p>Eg:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">CreateBook</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">RequestForm</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">CreateBook</span><span class="p">(</span><span class="n">fhurl</span><span class="o">.</span><span class="n">RequestForm</span><span class="p">):</span>
     <span class="c"># fields</span>
     <span class="c"># validation</span>
 
@@ -379,12 +379,12 @@ redirected to that user.</p>
 </div>
 <div class="section" id="this-is-too-much-typing">
 <h2>This Is Too Much Typing<a class="headerlink" href="#this-is-too-much-typing" title="Permalink to this headline">¶</a></h2>
-<p><a href="#id3"><span class="problematic" id="id4">|dutils|</span></a> comes with a utility function <cite>fhurl</cite>, that can be used
+<p><a href="#id3"><span class="problematic" id="id4">|fhurl|</span></a> comes with a utility function <cite>fhurl</cite>, that can be used
 <cite>django.conf.urls.defaults.url</cite>.</p>
 <p>Original urlconf:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
     <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
-       <span class="s">&quot;dutils.utils.form_handler&quot;</span><span class="p">,</span>
+       <span class="s">&quot;fhurl.form_handler&quot;</span><span class="p">,</span>
        <span class="p">{</span>
            <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
            <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
