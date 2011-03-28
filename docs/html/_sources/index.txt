@@ -4,6 +4,15 @@ Django Generic Form Handler View -- fhurl
 `fhurl.form_handler` is a generic view that can be used for handling
 forms.
 
+Install fhurl using::
+
+    $ easy_install fhurl
+
+fhurl is being developed on http://github.com/amitu/fhurl/.
+
+form_handler
+------------
+
 .. function:: fhurl.form_handler(request, form_cls, require_login=False, block_get=False, next=None, template=None, login_url=None, pass_request=True, ajax=False, validate_only=False)
 
     Some ajax heavy apps require a lot of views that are merely a wrapper
@@ -32,7 +41,7 @@ Simple Form Handling
 
 A typical form handler in django is the following view::
 
-    from myproj.myapp.forms import MyApp
+    from myproj.myapp.forms import MyForm
 
     def my_form_view(request):
         if request.method == "POST":
@@ -93,8 +102,8 @@ Access To Request Parameters Required
 -------------------------------------
 
 Sometimes for valid form processing, some aspect of request has to be know. In
-this case make sure your Form can take request as the first parameter, and set
-`pass_request` to `True`.::
+this case make sure your Form constructore can take request as the first
+parameter, and set `pass_request` to `True`.::
 
 
     class CreateBookForm(forms.Form):
@@ -121,7 +130,7 @@ this case make sure your Form can take request as the first parameter, and set
     )
 
 
-|fhurl| comes with a utility class derived from Form_ known as `RequestForm`.
+fhurl comes with a utility class derived from Form known as `RequestForm`.
 This form takes care of storing the request passed in constructor, so the above
 form can be re written as::
 
@@ -149,7 +158,7 @@ Only Users With Valid Account Can Access The Form
 -------------------------------------------------
 
 Sometimes being logged in is not enough, you may want users to satisfy some
-kind of condition before they can access the form, for example they account if
+kind of condition before they can access the form, for example their account is
 valid, or it has enough balance or whatever.
 
 This can be achieved by a combination of `require_login` and `login_url`. Lets
@@ -187,6 +196,11 @@ Here is how to handle this situation::
     redirecting user to a separate page, they will be presented with 404 error.
     This may be the suitable behaviour if a user would never be allowed access
     to a page, like edit page for an object not owned by that user.
+
+.. note::
+
+    In this example, make sure that /make-payment/ redirects user to /login/ if
+    user is not logged in.
 
 Forms That Take Parameters From URL
 -----------------------------------
@@ -246,7 +260,7 @@ loading the book and doing validation in it::
 
     from django import forms
 
-    class BookEditForm(fhrul.RequestForm):
+    class BookEditForm(fhurl.RequestForm):
         title = forms.CharField(max_length=50)
 
         def init(self, book_id):
@@ -288,13 +302,13 @@ do that if request is coming from a browser with proper headers, as required by
 `is_ajax
 <http://docs.djangoproject.com/en/dev/ref/request-response/#django.http.HttpRequest.is_ajax>`_.
 
-The form will return JSON objects, with parameter `success` which is `true` or
-`false`.
-
 .. code-block:: sh
 
     $ curl -d "username=newf&field=username&json=true" "http://localhost:8000/register/"
     {"errors": {"password1": ["This field is required."], "email": ["This field is required."]}, "success": false}
+
+The form will return JSON objects, with parameter `success` which is `true` or
+`false`.
 
 If its `true` when everything goes well, in this case, it will contain
 `response` parameter, which will be JSON encoded value of whatever was returned
@@ -345,7 +359,7 @@ Eg::
 This Is Too Much Typing
 -----------------------
 
-|fhurl| comes with a utility function `fhurl`, that can be used
+fhurl comes with a utility function `fhurl`, that can be used
 `django.conf.urls.defaults.url`.
 
 Original urlconf::
@@ -426,7 +440,7 @@ the same page, with each section containaing a "save" button.
 
 `form_handler` can be used for multiple forms on the same page situations.
 
-To use in that mode, pass a dictionary contain all forms as `form_cls`
+To use in that mode, pass a dictionary containing all forms as `form_cls`
 parameter::
 
     urlpatterns = patterns('',
