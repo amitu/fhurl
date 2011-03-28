@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Welcome to zums’s documentation! &mdash; zums v0.1.2 documentation</title>
+    <title>Django Generic Form Handler View – fhurl &mdash; fhurl v0.1.1 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.1.2',
+        VERSION:     '0.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="zums v0.1.2 documentation" href="#" /> 
+    <link rel="top" title="fhurl v0.1.1 documentation" href="#" /> 
   </head>
   <body>
     <div class="related">
@@ -31,7 +31,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="#">zums v0.1.2 documentation</a> &raquo;</li> 
+        <li><a href="#">fhurl v0.1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -40,30 +40,453 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="welcome-to-zums-s-documentation">
-<h1>Welcome to zums&#8217;s documentation!<a class="headerlink" href="#welcome-to-zums-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>zums can be installed by:</p>
-<div class="highlight-python"><pre>easy_install -U zums</pre>
+  <div class="section" id="django-generic-form-handler-view-fhurl">
+<h1>Django Generic Form Handler View &#8211; fhurl<a class="headerlink" href="#django-generic-form-handler-view-fhurl" title="Permalink to this headline">¶</a></h1>
+<p><cite>fhurl.form_handler</cite> is a generic view that can be used for handling
+forms.</p>
+<dl class="function">
+<dt id="dutils.utils.form_handler">
+<tt class="descclassname">dutils.utils.</tt><tt class="descname">form_handler</tt><big>(</big><em>request</em>, <em>form_cls</em>, <em>require_login=False</em>, <em>block_get=False</em>, <em>next=None</em>, <em>template=None</em>, <em>login_url=None</em>, <em>pass_request=True</em>, <em>ajax=False</em>, <em>validate_only=False</em><big>)</big><a class="headerlink" href="#dutils.utils.form_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some ajax heavy apps require a lot of views that are merely a wrapper
+around the form. This generic view can be used for them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>request</strong> &#8211; request object, instance of HttpRequest</li>
+<li><strong>form_cls</strong> (<em>string or instance of Form subclass.</em>) &#8211; form class to use</li>
+<li><strong>require_login</strong> &#8211; boolean or callable, if this is true, use must login
+before they can interact with the form</li>
+<li><strong>block_get</strong> &#8211; if true, GET requests are not allowed.</li>
+<li><strong>next</strong> &#8211; if passed, user will be redirected to this url after success</li>
+<li><strong>template</strong> &#8211; if passed, this template will be used to render form</li>
+<li><strong>login_url</strong> &#8211; user will be redirected to this user if login is required</li>
+<li><strong>pass_request</strong> &#8211; form instance would be created with request as first
+parameter if this is true</li>
+<li><strong>ajax</strong> &#8211; if this is true, form_handler will only return JSON data</li>
+<li><strong>validate_only</strong> &#8211; if this is true, form_handler will only validate
+fields and wont call form.save()</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">instance of HttpResponse subclass</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><cite>form_handler</cite> can be used in various scenarios.</p>
+<div class="section" id="simple-form-handling">
+<h2>Simple Form Handling<a class="headerlink" href="#simple-form-handling" title="Permalink to this headline">¶</a></h2>
+<p>A typical form handler in django is the following view:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">myproj.myapp.forms</span> <span class="kn">import</span> <span class="n">MyApp</span>
+
+<span class="k">def</span> <span class="nf">my_form_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&quot;POST&quot;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">MyForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="s">&quot;/somewhere/&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">MyForm</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span>
+        <span class="s">&quot;my_form.html&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="s">&quot;form&quot;</span><span class="p">:</span> <span class="n">form</span> <span class="p">},</span>
+        <span class="n">context_instance</span><span class="o">=</span><span class="n">RequestContext</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>This can be handled by <cite>form_handler</cite> by putting the following entries in
+urls.py:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf.urls.defaults</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^my-form/$&#39;</span><span class="p">,</span>
+       <span class="s">&quot;fhurl.form_handler&quot;</span><span class="p">,</span>
+       <span class="p">{</span>
+           <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;my_form.html&#39;</span><span class="p">,</span>
+           <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="s">&quot;myproj.myapp.forms.MyForm&quot;</span><span class="p">,</span>
+           <span class="s">&quot;next&quot;</span><span class="p">:</span> <span class="s">&quot;/somewhere/&quot;</span><span class="p">,</span>
+       <span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-url-to-be-redirected-is-variable">
+<h2>The URL To Be Redirected Is Variable<a class="headerlink" href="#the-url-to-be-redirected-is-variable" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes when lets say you created a new object, and user should be redirected
+to that object, instead of a static url, <cite>next</cite> parameter is not suffecient. In
+such cases, do not pass <cite>next</cite> and let form.save() return the URL.
+<cite>form_handler</cite> will redirect user to this url.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">CreateBookForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">book</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">book</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
+       <span class="s">&quot;dutils.utils.form_handler&quot;</span><span class="p">,</span>
+       <span class="p">{</span>
+           <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
+           <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
+           <span class="s">&quot;pass_request&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+       <span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="access-to-request-parameters-required">
+<h2>Access To Request Parameters Required<a class="headerlink" href="#access-to-request-parameters-required" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes for valid form processing, some aspect of request has to be know. In
+this case make sure your Form can take request as the first parameter, and set
+<cite>pass_request</cite> to <cite>True</cite>.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">CreateBookForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CreateBookForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">book</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">book</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
+       <span class="s">&quot;dutils.utils.form_handler&quot;</span><span class="p">,</span>
+       <span class="p">{</span>
+           <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
+           <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
+           <span class="s">&quot;pass_request&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+           <span class="s">&quot;require_login&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+       <span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><a href="#id1"><span class="problematic" id="id2">|utils|</span></a> comes with a utility class derived from <a href="#id5"><span class="problematic" id="id6">Form_</span></a> known as <cite>RequestForm</cite>.
+This form takes care of storing the request passed in constructor, so the above
+form can be re written as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">CreateBookForm</span><span class="p">(</span><span class="n">dutils</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">RequestForm</span><span class="p">):</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">book</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">book</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
+       <span class="s">&quot;dutils.utils.form_handler&quot;</span><span class="p">,</span>
+       <span class="p">{</span>
+           <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
+           <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
+           <span class="s">&quot;require_login&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+       <span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last"><a href="#id1"><span class="problematic" id="id2">|zums|</span></a> is developing fast, check out whats new at
-<a class="reference external" href="http://github.com/amitu/zums/blob/master/ChangeLog.rst">http://github.com/amitu/zums/blob/master/ChangeLog.rst</a></p>
-</div>
-<div class="section" id="table-of-contents">
-<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul class="simple">
-</ul>
+<p class="last">since <cite>pass_request</cite> is <cite>True</cite> by default this can be omitted.</p>
 </div>
 </div>
-<div class="section" id="indices-and-tables">
-<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
-<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
-<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
-</ul>
+<div class="section" id="only-users-with-valid-account-can-access-the-form">
+<h2>Only Users With Valid Account Can Access The Form<a class="headerlink" href="#only-users-with-valid-account-can-access-the-form" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes being logged in is not enough, you may want users to satisfy some
+kind of condition before they can access the form, for example they account if
+valid, or it has enough balance or whatever.</p>
+<p>This can be achieved by a combination of <cite>require_login</cite> and <cite>login_url</cite>. Lets
+say our user object has can_create_books() method on its UserProfile.</p>
+<p>Also lets assume that &#8220;/make-payment/&#8221; is the URL user will go to if they do
+not have permission to create books.</p>
+<p>Here is how to handle this situation:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">can_create_books</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">():</span> <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">get_profile</span><span class="p">()</span><span class="o">.</span><span class="n">can_create_books</span><span class="p">()</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
+       <span class="s">&quot;dutils.utils.form_handler&quot;</span><span class="p">,</span>
+       <span class="p">{</span>
+           <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
+           <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
+           <span class="s">&quot;require_login&quot;</span><span class="p">:</span> <span class="n">can_create_books</span><span class="p">,</span>
+           <span class="s">&quot;login_url&quot;</span><span class="p">:</span> <span class="s">&quot;/make-payment/&quot;</span><span class="p">,</span>
+       <span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><cite>require_login</cite> can be a callable. If its a callable, it will be passed
+request as the first parameter.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><cite>require_login</cite> can return the string &#8220;404&#8221;, in which case instead of
+redirecting user to a separate page, they will be presented with 404 error.
+This may be the suitable behaviour if a user would never be allowed access
+to a page, like edit page for an object not owned by that user.</p>
+</div>
+</div>
+<div class="section" id="forms-that-take-parameters-from-url">
+<h2>Forms That Take Parameters From URL<a class="headerlink" href="#forms-that-take-parameters-from-url" title="Permalink to this headline">¶</a></h2>
+<p>Django websites usually have clean URLs, which means no &#8220;/edit-book/?id=123&#8221;,
+rather &#8220;/book/123/edit/&#8221;. We have to handle cases where data is coming from
+URLs, instead of request parameters, to initialize the form.</p>
+<p>For this use case <cite>form_handler</cite> requires forms with <cite>.init()</cite> method.</p>
+<p>Consider the original view:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">edit_book</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">book_id</span><span class="p">):</span>
+    <span class="n">book</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Book</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">book_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">book</span><span class="o">.</span><span class="n">user</span> <span class="o">==</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">:</span>
+         <span class="n">Http404</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s">&quot;POST&quot;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">BookEditForm</span><span class="p">(</span><span class="n">book</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">book</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">BookEditForm</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render_to_response</span><span class="p">(</span>
+        <span class="s">&quot;edit-book.html&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;form&quot;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span> <span class="s">&quot;book&quot;</span><span class="p">:</span> <span class="n">book</span><span class="p">},</span>
+        <span class="n">context_instance</span><span class="o">=</span><span class="n">RequestContext</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>With urls.py containing:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf.urls.defaults</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="c"># other urls</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^book/(?P&lt;book_id&gt;[\d]+)/edit/$&#39;</span><span class="p">,</span> <span class="s">&quot;myproj.myapp.view.edit_book&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>And forms.py with something like:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">forms</span>
+
+<span class="k">class</span> <span class="nc">BookEditForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">book</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BookEditForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span> <span class="o">=</span> <span class="n">book</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">initial</span> <span class="o">=</span> <span class="n">book</span><span class="o">.</span><span class="n">title</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To handle this define .init() on BookEditForm, and put the view logic for
+loading the book and doing validation in it:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">forms</span>
+
+<span class="k">class</span> <span class="nc">BookEditForm</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">RequestForm</span><span class="p">):</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">book_id</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Book</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">book_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">user</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">:</span>
+            <span class="n">Http404</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">initial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">title</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s">&quot;title&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>We do not need the view now, and use the form_handler like so:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="n">fhurl</span><span class="p">(</span>
+        <span class="s">r&#39;^book/(?P&lt;book_id&gt;[\d]+)/edit/$&#39;</span><span class="p">,</span>
+        <span class="s">&quot;myproj.myapp.forms.BookEditForm&quot;</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="s">&quot;edit-book.html&quot;</span><span class="p">,</span>
+        <span class="n">require_login</span><span class="o">=</span><span class="bp">True</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><cite>form_handler</cite> will detect that the form has .init(), so it will call it. The
+extra argument passed from the url, <cite>book_id</cite>, will be passed to .init() as
+keyword argument.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Note that if .init() returns something, it is returned directly to users,
+which means, init() can perform all kinds of checks, and redirect users to
+different portions of site if required.</p>
+</div>
+</div>
+<div class="section" id="doing-ajax">
+<h2>Doing Ajax<a class="headerlink" href="#doing-ajax" title="Permalink to this headline">¶</a></h2>
+<p>Lets say we want to export all this as ajax. You actually don&#8217;t have to do
+anything, just pass &#8220;json=true&#8221; as a REQUEST parameter. You don&#8217;t even have to
+do that if request is coming from a browser with proper headers, as required by
+<a class="reference external" href="http://docs.djangoproject.com/en/dev/ref/request-response/#django.http.HttpRequest.is_ajax">is_ajax</a>.</p>
+<p>The form will return JSON objects, with parameter <cite>success</cite> which is <cite>true</cite> or
+<cite>false</cite>.</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>curl -d <span class="s2">&quot;username=newf&amp;field=username&amp;json=true&quot;</span> <span class="s2">&quot;http://localhost:8000/register/&quot;</span>
+<span class="o">{</span><span class="s2">&quot;errors&quot;</span>: <span class="o">{</span><span class="s2">&quot;password1&quot;</span>: <span class="o">[</span><span class="s2">&quot;This field is required.&quot;</span><span class="o">]</span>, <span class="s2">&quot;email&quot;</span>: <span class="o">[</span><span class="s2">&quot;This field is required.&quot;</span><span class="o">]}</span>, <span class="s2">&quot;success&quot;</span>: <span class="nb">false</span><span class="o">}</span>
+</pre></div>
+</div>
+<p>If its <cite>true</cite> when everything goes well, in this case, it will contain
+<cite>response</cite> parameter, which will be JSON encoded value of whatever was returned
+by the <cite>form.save()</cite>.</p>
+<p><cite>success</cite> is <cite>false</cite> if there was some form validation error, or if redirect is
+required. If redirect is required when conditions are not met, JSON contains a
+parameter <cite>redirect</cite> which contains the URL to which user has to be redirected.</p>
+<p>If <cite>success</cite> is <cite>false</cite> because of form validation errors, a property <cite>errors</cite>
+contains JSON encoded error messages.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In ajax mode, if a GET request is made, a JSON representation of form is
+returned, containing initial values, lables, help_text etc. This can be
+used to auto generate form, or to get initial values etc.</p>
+</div>
+</div>
+<div class="section" id="using-same-form-for-json-access-and-normal-web-access">
+<h2>Using Same Form For JSON Access And Normal Web Access<a class="headerlink" href="#using-same-form-for-json-access-and-normal-web-access" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes implicit conversion of object returned by form.save() can be limiting
+in scenarios where same form is being used both for ajax handling and as normal
+webform.</p>
+<p>Eg, /create-book/ when accessed via browser would want to return user to the
+newly created book&#8217;s permalink on success, while when the same URL is invoked
+through ajax, we want to return the JSON representation of the book.</p>
+<p>To handle this, give your form a .get_json() method, which when available is
+called, and its output is returned to user for ajax invocation, and .save() can
+safely return the permalink of the book, which will lead to browser getting
+redirected to that user.</p>
+<p>Eg:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">CreateBook</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">RequestForm</span><span class="p">):</span>
+    <span class="c"># fields</span>
+    <span class="c"># validation</span>
+
+    <span class="k">def</span> <span class="nf">get_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saved</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">__dict__</span> <span class="c"># gets JSONified for JSON calls</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">book</span> <span class="o">=</span> <span class="n">create_book</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span> <span class="c"># browser gets redirected here</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="this-is-too-much-typing">
+<h2>This Is Too Much Typing<a class="headerlink" href="#this-is-too-much-typing" title="Permalink to this headline">¶</a></h2>
+<p><a href="#id3"><span class="problematic" id="id4">|dutils|</span></a> comes with a utility function <cite>fhurl</cite>, that can be used
+<cite>django.conf.urls.defaults.url</cite>.</p>
+<p>Original urlconf:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
+       <span class="s">&quot;dutils.utils.form_handler&quot;</span><span class="p">,</span>
+       <span class="p">{</span>
+           <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
+           <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
+       <span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>With <cite>fhurl</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="n">fhurl</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span> <span class="n">CreateBookForm</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="s">&#39;create-book.html&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="as-you-type-ajax-validation">
+<h2>As You Type AJAX Validation<a class="headerlink" href="#as-you-type-ajax-validation" title="Permalink to this headline">¶</a></h2>
+<p><cite>form_handler</cite> can be used for validating partially filled forms for as you
+type validation of web forms.</p>
+<p>This feature can be setup either on the URL basis by passing <cite>validate_only</cite> to
+<cite>form_handler</cite> in <cite>urls.py</cite>, or on a per request basis by passing
+<cite>validate_only</cite> request parameter.</p>
+<p>If its being done on request basis, no setup is required, just pass the
+<cite>validate_only</cite> parameter:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span class="nv">$ </span>curl -d <span class="s2">&quot;validate_only=true&amp;username=&amp;field=username&quot;</span> <span class="s2">&quot;http://localhost:8000/register/&quot;</span>
+<span class="o">{</span><span class="s2">&quot;errors&quot;</span>: <span class="s2">&quot;This field is required.&quot;</span>, <span class="s2">&quot;valid&quot;</span>: <span class="nb">false</span><span class="o">}</span>
+<span class="nv">$ </span>curl -d <span class="s2">&quot;validate_only=true&amp;username=amitu&amp;field=username&quot;</span> <span class="s2">&quot;http://localhost:8000/register/&quot;</span>
+<span class="o">{</span><span class="s2">&quot;errors&quot;</span>: <span class="s2">&quot;This username is already taken. Please choose another.&quot;</span>, <span class="s2">&quot;valid&quot;</span>: <span class="nb">false</span><span class="o">}</span>
+<span class="nv">$ </span>curl -d <span class="s2">&quot;validate_only=true&amp;username=newf&amp;field=username&quot;</span> <span class="s2">&quot;http://localhost:8000/register/&quot;</span>
+<span class="o">{</span><span class="s2">&quot;errors&quot;</span>: <span class="s2">&quot;&quot;</span>, <span class="s2">&quot;valid&quot;</span>: <span class="nb">true</span><span class="o">}</span>
+</pre></div>
+</div>
+<p>Some javascript to handle it:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#id_username, #id_password, #id_password2, #id_email&quot;</span><span class="p">).</span><span class="nx">blur</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+        <span class="kd">var</span> <span class="nx">url</span> <span class="o">=</span> <span class="s2">&quot;/register/?validate_only=true&amp;field=&quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">field</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
+        <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+            <span class="nx">url</span><span class="o">:</span> <span class="nx">url</span><span class="p">,</span> <span class="nx">data</span><span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#registration_form&quot;</span><span class="p">).</span><span class="nx">serialize</span><span class="p">(),</span>
+            <span class="nx">type</span><span class="o">:</span> <span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="nx">dataType</span><span class="o">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+            <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+                <span class="k">if</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">valid</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="o">+</span><span class="nx">field</span><span class="o">+</span><span class="s2">&quot;_errors&quot;</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="s2">&quot;Sounds good&quot;</span><span class="p">);</span>
+                <span class="p">}</span>
+                <span class="k">else</span>
+                <span class="p">{</span>
+                    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="o">+</span><span class="nx">field</span><span class="o">+</span><span class="s2">&quot;_errors&quot;</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">errors</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="multiple-forms-on-the-same-url">
+<h2>Multiple Forms On the Same URL<a class="headerlink" href="#multiple-forms-on-the-same-url" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes it is desired to show multiple forms on the same page. While in some
+cases these forms lead to separate pages, there are situations when the same
+page should handle both forms.</p>
+<p>Consider setting pages for example. Some services split different section of
+settings page into different pages, while others prefer to show all settings on
+the same page, with each section containaing a &#8220;save&#8221; button.</p>
+<p><cite>form_handler</cite> can be used for multiple forms on the same page situations.</p>
+<p>To use in that mode, pass a dictionary contain all forms as <cite>form_cls</cite>
+parameter:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="n">fhurl</span><span class="p">(</span>
+        <span class="s">r&#39;^settings/$&#39;</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="s">&quot;settings.html&quot;</span><span class="p">,</span>
+        <span class="n">form_cls</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;password_form&#39;</span><span class="p">:</span> <span class="s">&#39;myproj.myapp.forms.ChangePasswordForm&#39;</span><span class="p">,</span>
+            <span class="s">&#39;profile_form&#39;</span><span class="p">:</span> <span class="s">&#39;myproj.myapp.forms.ChangeProfileForm&#39;</span><span class="p">,</span>
+            <span class="s">&#39;email_preference_form&#39;</span><span class="p">:</span> <span class="s">&#39;myproj.myapp.forms.EmailPreferenceForm&#39;</span>
+        <span class="p">},</span> <span class="n">require_login</span><span class="o">=</span><span class="bp">True</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Each form will be available to the template by names <cite>password_form</cite>,
+<cite>profile_form</cite>, <cite>email_preference_form</cite> etc.</p>
+<p>Each of these forms must contain a hidden field with name <cite>fh_form</cite> and value same as the name, eg:</p>
+<div class="highlight-html+django"><div class="highlight"><pre><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;.&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;h2&gt;</span>Change Password<span class="nt">&lt;/h2&gt;</span>
+    <span class="cp">{{</span> <span class="nv">password_form</span> <span class="cp">}}</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;fh_form&quot;</span> <span class="na">value=</span><span class="s">&quot;password_form&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Change Password&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+<span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;.&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;h2&gt;</span>Update Profile<span class="nt">&lt;/h2&gt;</span>
+    <span class="cp">{{</span> <span class="nv">profile_form</span> <span class="cp">}}</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;fh_form&quot;</span> <span class="na">value=</span><span class="s">&quot;profile_form&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Save&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+<span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;.&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;h2&gt;</span>Change Email Preferences<span class="nt">&lt;/h2&gt;</span>
+    <span class="cp">{{</span> <span class="nv">email_preference_form</span> <span class="cp">}}</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;fh_form&quot;</span> <span class="na">value=</span><span class="s">&quot;email_preference_form&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Update&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -75,11 +498,17 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Welcome to zums&#8217;s documentation!</a><ul>
-<li><a class="reference internal" href="#table-of-contents">Table of Contents</a><ul>
-</ul>
-</li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li><a class="reference internal" href="#">Django Generic Form Handler View &#8211; fhurl</a><ul>
+<li><a class="reference internal" href="#simple-form-handling">Simple Form Handling</a></li>
+<li><a class="reference internal" href="#the-url-to-be-redirected-is-variable">The URL To Be Redirected Is Variable</a></li>
+<li><a class="reference internal" href="#access-to-request-parameters-required">Access To Request Parameters Required</a></li>
+<li><a class="reference internal" href="#only-users-with-valid-account-can-access-the-form">Only Users With Valid Account Can Access The Form</a></li>
+<li><a class="reference internal" href="#forms-that-take-parameters-from-url">Forms That Take Parameters From URL</a></li>
+<li><a class="reference internal" href="#doing-ajax">Doing Ajax</a></li>
+<li><a class="reference internal" href="#using-same-form-for-json-access-and-normal-web-access">Using Same Form For JSON Access And Normal Web Access</a></li>
+<li><a class="reference internal" href="#this-is-too-much-typing">This Is Too Much Typing</a></li>
+<li><a class="reference internal" href="#as-you-type-ajax-validation">As You Type AJAX Validation</a></li>
+<li><a class="reference internal" href="#multiple-forms-on-the-same-url">Multiple Forms On the Same URL</a></li>
 </ul>
 </li>
 </ul>
@@ -112,7 +541,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="#">zums v0.1.2 documentation</a> &raquo;</li> 
+        <li><a href="#">fhurl v0.1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
