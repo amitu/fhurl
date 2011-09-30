@@ -8,7 +8,10 @@ from django.conf.urls.defaults import url
 from datetime import datetime, date
 from django.conf import settings
 from django import forms
-import json
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
 # }}}
 
 # JSONEncoder # {{{ 
