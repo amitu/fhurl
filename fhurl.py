@@ -136,11 +136,13 @@ def form_handler(
         if isinstance(form_cls, dict):
             assert "fh_form" in request.REQUEST
             form = form_cls[request.REQUEST["fh_form"]]
+            form.next = next
             forms = form_cls
             for k, f in forms.items():
                 forms[k] = f(request) if pass_request else f()
         else:
             form = form_cls(request) if pass_request else form_cls()
+            form.next = next
             forms = { "form": form }
         if with_data:
             form.data = request.REQUEST
