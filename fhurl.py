@@ -8,6 +8,7 @@ from django.conf.urls.defaults import url
 from datetime import datetime, date
 from django.conf import settings
 from django import forms
+import urllib2
 try:
     import json
 except ImportError:
@@ -124,7 +125,9 @@ def form_handler(
     if require_login:
         if require_login == "404":
             raise Http404("login required")
-        redirect_url = "%s?next=%s" % (login_url, request.path) # FIXME
+        redirect_url = "%s?next=%s" % (
+            login_url, urllib2.quote(request.get_full_path())
+        ) # FIXME
         if is_ajax:
             return JSONResponse({ 'success': False, 'redirect': redirect_url })
         return HttpResponseRedirect(redirect_url)
