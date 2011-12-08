@@ -207,6 +207,18 @@ False
 >>> d["response"]["username"]
 u'john'
 
+>>> r = c.post("/both/ajax/and/web/", good_data)
+>>> r.content
+'hi john'
+
+>>> r = c.post("/both/ajax/and/web/?json=true", good_data)
+>>> d = json.loads(r.content)
+>>> d["success"]
+True
+>>> "errors" in d
+False
+>>> d["response"]["username"]
+u'john'
 
 """
 

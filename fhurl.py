@@ -174,7 +174,6 @@ def form_handler(
         if validate_only:
             return JSONResponse({"valid": True, "errors": {}})
         r = form.save()
-        if isinstance(r, HttpResponse): return r
         if is_ajax: return JSONResponse(
             {
                 'success': True,
@@ -183,6 +182,7 @@ def form_handler(
                 )
             }
         )
+        if isinstance(r, HttpResponse): return r
         if next: return HttpResponseRedirect(next)
         if template: return HttpResponseRedirect(r)
         return JSONResponse(

@@ -39,6 +39,12 @@ class AjaxOnly(LoginFormWithRequest):
     def save(self):
         return self.cleaned_data
 
+class BothAjaxAndWeb(LoginFormWithRequest):
+    def get_json(self, saved):
+        return self.cleaned_data
+    def save(self):
+        return HttpResponse("hi %s" % self.cleaned_data["username"])
+
 urlpatterns = patterns('',
     fhurl(
         "^login/without/$", LoginFormWithoutRequest, template="login.html",
@@ -72,7 +78,6 @@ urlpatterns = patterns('',
         login_url="/custom/"
 
     ),
-    fhurl(
-        "^ajax/only/$", AjaxOnly, ajax=True
-    )
+    fhurl("^ajax/only/$", AjaxOnly, ajax=True),
+    fhurl("^both/ajax/and/web/$", BothAjaxAndWeb, template="login.html"),
 )
