@@ -16,6 +16,10 @@ class FormWithHttpResponse(LoginFormWithRequest):
     def save(self):
         return HttpResponse("hi %s" % self.cleaned_data["username"])
 
+class FormWithVariableRedirect(LoginFormWithRequest):
+    def save(self):
+        return "/%s/" % self.cleaned_data["username"]
+
 urlpatterns = patterns('',
     fhurl(
         "^login/without/$", LoginFormWithoutRequest, template="login.html",
@@ -23,4 +27,8 @@ urlpatterns = patterns('',
     ),
     fhurl("^login/with/$", LoginFormWithRequest, template="login.html"),
     fhurl("^with/http/$", FormWithHttpResponse, template="login.html"),
+    fhurl(
+        "^with/variable/redirect/$", FormWithVariableRedirect,
+        template="login.html"
+    ),
 )

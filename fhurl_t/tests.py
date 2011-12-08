@@ -26,7 +26,9 @@ False
 >>> len(r.content.split("This field is required."))
 2
 
->>> r = c.post("/login/with/", {"username": "john", "password": "asd"})
+>>> good_data = {"username": "john", "password": "asd"}
+
+>>> r = c.post("/login/with/", good_data)
 >>> r.status_code
 302
 >>> r.content
@@ -56,7 +58,7 @@ False
 >>> len(r.content.split("This field is required."))
 2
 
->>> r = c.post("/login/without/", {"username": "john", "password": "asd"})
+>>> r = c.post("/login/without/", good_data)
 >>> r.status_code
 302
 >>> r.content
@@ -71,12 +73,24 @@ False
 >>> r.templates[0].name
 'login.html'
 
->>> r = c.post("/with/http/", {"username": "john", "password": "asd"})
+>>> r = c.post("/with/http/", good_data)
 >>> r.status_code
 200
 >>> r.content
 'hi john'
 
+
+>>> r = c.get("/with/variable/redirect/")
+>>> r.status_code
+200
+>>> r.templates[0].name
+'login.html'
+
+>>> r = c.post("/with/variable/redirect/", good_data)
+>>> r.status_code
+302
+>>> r["location"]
+'http://testserver/john/'
 
 """
 
