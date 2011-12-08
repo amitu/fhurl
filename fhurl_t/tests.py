@@ -100,17 +100,17 @@ True
 
 
 ##### Init returning response feature is not working ########
-#>>> r = c.get("/init/returning/jack/")
-#>>> r.status_code
-#200
+>>> r = c.get("/init/returning/jack/")
+>>> r.status_code
+200
 
-#>>> r.content
-#'good boy jack'
+>>> r.content
+'good boy jack'
 
 ##### Init raising 404 feature is not working ########
-#>>> r = c.get("/init/raising/404/")
-#>>> r.status_code
-#404
+>>> r = c.get("/init/raising/404/")
+>>> r.status_code
+404
 
 >>> r = c.get("/login/required/")
 >>> r.status_code
@@ -231,7 +231,6 @@ False
 
 >>> r = c.post("/both/ajax/and/web/?validate_only=true", good_data)
 >>> d = json.loads(r.content)
->>> r.content
 >>> d["valid"]
 True
 

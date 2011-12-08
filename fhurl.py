@@ -91,8 +91,13 @@ class RequestForm(forms.Form):
         return obj
 # }}}
 
+class ResponseReady(Exception):
+    def __init__(self, response, *args, **kw):
+        self.response = response
+        super(ResponseReady, self).__init__(*args, **kw)
+
 # form_handler # {{{
-def form_handler(
+def _form_handler(
     request, form_cls, require_login=False, block_get=False, ajax=False,
     next=None, template=None, login_url=None, pass_request=True,
     validate_only=False, **kwargs
@@ -108,11 +113,6 @@ def form_handler(
         # can take form_cls of the form: "project.app.forms.FormName"
         mod_name, form_name = get_mod_func(form_cls)
         form_cls = getattr(__import__(mod_name, {}, {}, ['']), form_name)
-    elif isinstance(form_cls, dict):
-        for k, v in form_cls.items():
-            if not isinstance(v, basestring): continue
-            mod_name, form_name = get_mod_func(v)
-            form_cls[k] = getattr(__import__(mod_name, {}, {}, ['']), form_name)
     validate_only = (
         validate_only or request.REQUEST.get("validate_only") == "true"
     )
@@ -133,43 +133,24 @@ def form_handler(
         raise Http404("only post allowed")
     if next: assert template, "template required when next provided"
     def get_form(with_data=False):
-        # TODO: allow defaults from URL?
-        if isinstance(form_cls, dict):
-            if request.method == "POST":
-                assert "fh_form" in request.REQUEST
-            if "fh_form" in request.REQUEST:
-                form = form_cls[request.REQUEST["fh_form"]]
-                form = form(request) if pass_request else form()
-                form.next = next
-            else:
-                form = None
-            forms_ = {}
-            for k, f in form_cls.items():
-                forms_[k] = f(request) if pass_request else f()
-                forms_[k].fields["fh_form"] = forms.CharField(
-                    max_length="100", initial=k, widget=forms.HiddenInput
-                )
-        else:
-            form = form_cls(request) if pass_request else form_cls()
-            form.next = next
-            forms_ = { "form": form }
+        form = form_cls(request) if pass_request else form_cls()
+        form.next = next
         if with_data:
             form.data = request.REQUEST
             form.files = request.FILES
             form.is_bound = True
-        for f in forms_.values():
-            if hasattr(f, "init"):
-                res = f.init(**kwargs)
-                if res: return res
-        return form, forms_
+        if hasattr(form, "init"):
+            res = form.init(**kwargs)
+            if res: raise ResponseReady(res)
+        return form
     if is_ajax and request.method == "GET":
-        return JSONResponse(get_form_representation(get_form()[0]))
+        return JSONResponse(get_form_representation(get_form()))
     if template and request.method == "GET":
         return render_to_response(
-            template, get_form()[1],
+            template, {"form": get_form()},
             context_instance=RequestContext(request)
         )
-    form, forms_ = get_form(with_data=True)
+    form = get_form(with_data=True)
     if form.is_valid():
         if validate_only:
             return JSONResponse({"valid": True, "errors": {}})
@@ -204,11 +185,16 @@ def form_handler(
         return JSONResponse({ 'success': False, 'errors': form.errors })
     if template:
         return render_to_response(
-            template, forms_, context_instance=RequestContext(request)
+            template, {"form": form}, context_instance=RequestContext(request)
         )
     return JSONResponse({ 'success': False, 'errors': form.errors })
 # }}}
 
+def form_handler(*args, **kw):
+    try:
+        return _form_handler(*args, **kw)
+    except ResponseReady, e:
+        return e.response
 # fhurl # {{{
 def fhurl(reg, form_cls, decorator=lambda x: x, **kw):
     name = kw.pop("name", None)
