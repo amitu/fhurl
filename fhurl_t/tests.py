@@ -220,6 +220,21 @@ False
 >>> d["response"]["username"]
 u'john'
 
+>>> r = c.post("/both/ajax/and/web/?validate_only=true", {})
+>>> d = json.loads(r.content)
+>>> d["valid"]
+False
+>>> d["errors"]["username"]
+[u'This field is required.']
+>>> d["errors"]["password"]
+[u'This field is required.']
+
+>>> r = c.post("/both/ajax/and/web/?validate_only=true", good_data)
+>>> d = json.loads(r.content)
+>>> r.content
+>>> d["valid"]
+True
+
 """
 
 if __name__ == "__main__":
