@@ -4,7 +4,7 @@ from django import forms
 from fhurl import fhurl, RequestForm
 
 class LoginFormWithoutRequest(forms.Form):
-    username = forms.CharField(max_length=100)
+    username = forms.CharField(max_length=100, label="Username")
     password = forms.CharField(max_length=100, widget=forms.PasswordInput)
 
     def save(self):

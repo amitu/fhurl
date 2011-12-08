@@ -138,6 +138,53 @@ True
 >>> r.templates[0].name
 'login.html'
 
+
+#### AJAX test ####
+
+>>> r = c.get("/login/with/?json=true")
+>>> r.status_code
+200
+>>> d = json.loads(r.content)
+>>> d["username"]["required"]
+True
+>>> d["username"]["label"]
+u'Username'
+>>> d["password"]["required"]
+True
+
+>>> r = c.post("/login/with/?json=true")
+>>> r.status_code
+200
+>>> d = json.loads(r.content)
+>>> d["success"]
+False
+>>> d["errors"]["username"]
+[u'This field is required.']
+>>> d["errors"]["password"]
+[u'This field is required.']
+
+>>> r = c.post("/login/with/?json=true", {"username": "john"})
+>>> r.status_code
+200
+>>> d = json.loads(r.content)
+>>> d["success"]
+False
+>>> "username" in d["errors"]
+False
+>>> d["errors"]["password"]
+[u'This field is required.']
+
+>>> r = c.post("/login/with/?json=true", good_data)
+>>> r.status_code
+200
+>>> d = json.loads(r.content)
+>>> d["success"]
+True
+>>> "errors" in d
+False
+>>> d["response"]
+u'/'
+
 """
 
 if __name__ == "__main__":
