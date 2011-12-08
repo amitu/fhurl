@@ -192,13 +192,6 @@ Here is how to handle this situation::
 
 .. note::
 
-    `require_login` can return the string "404", in which case instead of
-    redirecting user to a separate page, they will be presented with 404 error.
-    This may be the suitable behaviour if a user would never be allowed access
-    to a page, like edit page for an object not owned by that user.
-
-.. note::
-
     In this example, make sure that /make-payment/ redirects user to /login/ if
     user is not logged in.
 

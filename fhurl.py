@@ -123,8 +123,6 @@ def form_handler(
     elif require_login:
         require_login = not request.user.is_authenticated()
     if require_login:
-        if require_login == "404":
-            raise Http404("login required")
         redirect_url = "%s?next=%s" % (
             login_url, urllib2.quote(request.get_full_path())
         ) # FIXME
