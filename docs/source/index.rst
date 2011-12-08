@@ -34,7 +34,21 @@ form_handler
         fields and wont call form.save()
     :rtype: instance of HttpResponse subclass
 
-`form_handler` can be used in various scenarios.
+
+fhurl
+-----
+
+.. function:: fhurl.fhurl(reg, form_cls, decorator=labmda x: x, \**kw)
+
+    This is a utility function to be used in urls.py for convenience.
+
+    :param reg: regular expression as used in django urls.
+    :param form_cls: The form class to use.
+    :type form_cls: string or django.forms.Form subclass.
+    :param decorator: the decorator to use, optional.
+    :param kw: rest of the keyword arguments as described above.
+
+`form_handler` and `fhurl` can be used in various scenarios.
 
 Simple Form Handling
 --------------------
@@ -56,19 +70,16 @@ A typical form handler in django is the following view::
             context_instance=RequestContext(request)
         )
 
-This can be handled by `form_handler` by putting the following entries in
+This can be handled by `fhurl` by putting the following entries in
 urls.py::
 
     from django.conf.urls.defaults import *
+    from fhurl import fhurl
 
     urlpatterns = patterns('',
-        url(r'^my-form/$',
-           "fhurl.form_handler",
-           {
-               'template': 'my_form.html',
-               "form_cls": "myproj.myapp.forms.MyForm",
-               "next": "/somewhere/",
-           },
+        fhurl(
+           r'^my-form/$', "myproj.myapp.forms.MyForm", template='my_form.html',
+           next="/somewhere/", pass_request=False
         ),
     )
 
@@ -88,13 +99,9 @@ such cases, do not pass `next` and let form.save() return the URL.
             return book.get_absolute_url()
 
     urlpatterns = patterns('',
-        url(r'^create-book/$',
-           "fhurl.form_handler",
-           {
-               'template': 'create-book.html',
-               "form_cls": CreateBookForm,
-               "pass_request": False,
-           },
+        fhurl(
+            r'^create-book/$', CreateBookForm, template='create-book.html',
+            pass_request=False,
         ),
     )
 
@@ -118,14 +125,9 @@ parameter, and set `pass_request` to `True`.::
             return book.get_absolute_url()
 
     urlpatterns = patterns('',
-        url(r'^create-book/$',
-           "fhurl.form_handler",
-           {
-               'template': 'create-book.html',
-               "form_cls": CreateBookForm,
-               "pass_request": True,
-               "require_login": True,
-           },
+        fhurl(
+            r'^create-book/$', CreateBookForm,
+            template='create-book.html', require_login=True,
         ),
     )
 
@@ -142,17 +144,9 @@ form can be re written as::
             return book.get_absolute_url()
 
     urlpatterns = patterns('',
-        url(r'^create-book/$',
-           "fhurl.form_handler",
-           {
-               'template': 'create-book.html',
-               "form_cls": CreateBookForm,
-               "require_login": True,
-           },
-        ),
+        fhurl(r'^create-book/$', CreateBookForm, template='create-book.html'),
     )
 
-.. note:: since `pass_request` is `True` by default this can be omitted. 
 
 Only Users With Valid Account Can Access The Form
 -------------------------------------------------
@@ -174,14 +168,9 @@ Here is how to handle this situation::
         return request.user.get_profile().can_create_books()
 
     urlpatterns = patterns('',
-        url(r'^create-book/$',
-           "fhurl.form_handler",
-           {
-               'template': 'create-book.html',
-               "form_cls": CreateBookForm,
-               "require_login": can_create_books,
-               "login_url": "/make-payment/",
-           },
+        fhurl(
+            r'^create-book/$', CreateBookForm, login_url="/make-payment/",
+            template='create-book.html', require_login=can_create_books,
         ),
     )
 
@@ -270,9 +259,8 @@ We do not need the view now, and use the form_handler like so::
 
     urlpatterns = patterns('',
         fhurl(
-            r'^book/(?P<book_id>[\d]+)/edit/$', 
-            "myproj.myapp.forms.BookEditForm", template="edit-book.html",
-            require_login=True
+            r'^book/(?P<book_id>[\d]+)/edit/$', BookEditForm, 
+            template="edit-book.html", require_login=True
         )
     )
 
@@ -348,30 +336,6 @@ Eg::
         def save(self):
             self.book = create_book(self.cleaned_data)
             return self.book.get_absolute_url() # browser gets redirected here
-
-This Is Too Much Typing
------------------------
-
-fhurl comes with a utility function `fhurl`, that can be used
-`django.conf.urls.defaults.url`.
-
-Original urlconf::
-
-    urlpatterns = patterns('',
-        url(r'^create-book/$',
-           "fhurl.form_handler",
-           {
-               'template': 'create-book.html',
-               "form_cls": CreateBookForm,
-           },
-        ),
-    )
-
-With `fhurl`::
-
-    urlpatterns = patterns('',
-        fhurl(r'^create-book/$', CreateBookForm, template='create-book.html')
-    )
 
 As You Type AJAX Validation
 ---------------------------

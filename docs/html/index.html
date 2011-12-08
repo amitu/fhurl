@@ -83,7 +83,30 @@ fields and wont call form.save()</li>
 </table>
 </dd></dl>
 
-<p><cite>form_handler</cite> can be used in various scenarios.</p>
+</div>
+<div class="section" id="fhurl">
+<h2>fhurl<a class="headerlink" href="#fhurl" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fhurl.fhurl">
+<tt class="descclassname">fhurl.</tt><tt class="descname">fhurl</tt><big>(</big><em>reg</em>, <em>form_cls</em>, <em>decorator=labmda x: x</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#fhurl.fhurl" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a utility function to be used in urls.py for convenience.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>reg</strong> &#8211; regular expression as used in django urls.</li>
+<li><strong>form_cls</strong> (<em>string or django.forms.Form subclass.</em>) &#8211; The form class to use.</li>
+<li><strong>decorator</strong> &#8211; the decorator to use, optional.</li>
+<li><strong>kw</strong> &#8211; rest of the keyword arguments as described above.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><cite>form_handler</cite> and <cite>fhurl</cite> can be used in various scenarios.</p>
 </div>
 <div class="section" id="simple-form-handling">
 <h2>Simple Form Handling<a class="headerlink" href="#simple-form-handling" title="Permalink to this headline">¶</a></h2>
@@ -104,18 +127,15 @@ fields and wont call form.save()</li>
     <span class="p">)</span>
 </pre></div>
 </div>
-<p>This can be handled by <cite>form_handler</cite> by putting the following entries in
+<p>This can be handled by <cite>fhurl</cite> by putting the following entries in
 urls.py:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.conf.urls.defaults</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">fhurl</span> <span class="kn">import</span> <span class="n">fhurl</span>
 
 <span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
-    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^my-form/$&#39;</span><span class="p">,</span>
-       <span class="s">&quot;fhurl.form_handler&quot;</span><span class="p">,</span>
-       <span class="p">{</span>
-           <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;my_form.html&#39;</span><span class="p">,</span>
-           <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="s">&quot;myproj.myapp.forms.MyForm&quot;</span><span class="p">,</span>
-           <span class="s">&quot;next&quot;</span><span class="p">:</span> <span class="s">&quot;/somewhere/&quot;</span><span class="p">,</span>
-       <span class="p">},</span>
+    <span class="n">fhurl</span><span class="p">(</span>
+       <span class="s">r&#39;^my-form/$&#39;</span><span class="p">,</span> <span class="s">&quot;myproj.myapp.forms.MyForm&quot;</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="s">&#39;my_form.html&#39;</span><span class="p">,</span>
+       <span class="nb">next</span><span class="o">=</span><span class="s">&quot;/somewhere/&quot;</span><span class="p">,</span> <span class="n">pass_request</span><span class="o">=</span><span class="bp">False</span>
     <span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
@@ -135,13 +155,9 @@ such cases, do not pass <cite>next</cite> and let form.save() return the URL.
         <span class="k">return</span> <span class="n">book</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span>
 
 <span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
-    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
-       <span class="s">&quot;fhurl.form_handler&quot;</span><span class="p">,</span>
-       <span class="p">{</span>
-           <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
-           <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
-           <span class="s">&quot;pass_request&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-       <span class="p">},</span>
+    <span class="n">fhurl</span><span class="p">(</span>
+        <span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span> <span class="n">CreateBookForm</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
+        <span class="n">pass_request</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
     <span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
@@ -164,14 +180,9 @@ parameter, and set <cite>pass_request</cite> to <cite>True</cite>.:</p>
         <span class="k">return</span> <span class="n">book</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span>
 
 <span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
-    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
-       <span class="s">&quot;fhurl.form_handler&quot;</span><span class="p">,</span>
-       <span class="p">{</span>
-           <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
-           <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
-           <span class="s">&quot;pass_request&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-           <span class="s">&quot;require_login&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-       <span class="p">},</span>
+    <span class="n">fhurl</span><span class="p">(</span>
+        <span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span> <span class="n">CreateBookForm</span><span class="p">,</span>
+        <span class="n">template</span><span class="o">=</span><span class="s">&#39;create-book.html&#39;</span><span class="p">,</span> <span class="n">require_login</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
     <span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
@@ -187,20 +198,9 @@ form can be re written as:</p>
         <span class="k">return</span> <span class="n">book</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span>
 
 <span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
-    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
-       <span class="s">&quot;fhurl.form_handler&quot;</span><span class="p">,</span>
-       <span class="p">{</span>
-           <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
-           <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
-           <span class="s">&quot;require_login&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-       <span class="p">},</span>
-    <span class="p">),</span>
+    <span class="n">fhurl</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span> <span class="n">CreateBookForm</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="s">&#39;create-book.html&#39;</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">since <cite>pass_request</cite> is <cite>True</cite> by default this can be omitted.</p>
 </div>
 </div>
 <div class="section" id="only-users-with-valid-account-can-access-the-form">
@@ -218,14 +218,9 @@ not have permission to create books.</p>
     <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">get_profile</span><span class="p">()</span><span class="o">.</span><span class="n">can_create_books</span><span class="p">()</span>
 
 <span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
-    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
-       <span class="s">&quot;fhurl.form_handler&quot;</span><span class="p">,</span>
-       <span class="p">{</span>
-           <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
-           <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
-           <span class="s">&quot;require_login&quot;</span><span class="p">:</span> <span class="n">can_create_books</span><span class="p">,</span>
-           <span class="s">&quot;login_url&quot;</span><span class="p">:</span> <span class="s">&quot;/make-payment/&quot;</span><span class="p">,</span>
-       <span class="p">},</span>
+    <span class="n">fhurl</span><span class="p">(</span>
+        <span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span> <span class="n">CreateBookForm</span><span class="p">,</span> <span class="n">login_url</span><span class="o">=</span><span class="s">&quot;/make-payment/&quot;</span><span class="p">,</span>
+        <span class="n">template</span><span class="o">=</span><span class="s">&#39;create-book.html&#39;</span><span class="p">,</span> <span class="n">require_login</span><span class="o">=</span><span class="n">can_create_books</span><span class="p">,</span>
     <span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
@@ -234,13 +229,6 @@ not have permission to create books.</p>
 <p class="first admonition-title">Note</p>
 <p class="last"><cite>require_login</cite> can be a callable. If its a callable, it will be passed
 request as the first parameter.</p>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last"><cite>require_login</cite> can return the string &#8220;404&#8221;, in which case instead of
-redirecting user to a separate page, they will be presented with 404 error.
-This may be the suitable behaviour if a user would never be allowed access
-to a page, like edit page for an object not owned by that user.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -319,9 +307,8 @@ loading the book and doing validation in it:</p>
 <p>We do not need the view now, and use the form_handler like so:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
     <span class="n">fhurl</span><span class="p">(</span>
-        <span class="s">r&#39;^book/(?P&lt;book_id&gt;[\d]+)/edit/$&#39;</span><span class="p">,</span>
-        <span class="s">&quot;myproj.myapp.forms.BookEditForm&quot;</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="s">&quot;edit-book.html&quot;</span><span class="p">,</span>
-        <span class="n">require_login</span><span class="o">=</span><span class="bp">True</span>
+        <span class="s">r&#39;^book/(?P&lt;book_id&gt;[\d]+)/edit/$&#39;</span><span class="p">,</span> <span class="n">BookEditForm</span><span class="p">,</span>
+        <span class="n">template</span><span class="o">=</span><span class="s">&quot;edit-book.html&quot;</span><span class="p">,</span> <span class="n">require_login</span><span class="o">=</span><span class="bp">True</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -389,29 +376,6 @@ redirected to that user.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="this-is-too-much-typing">
-<h2>This Is Too Much Typing<a class="headerlink" href="#this-is-too-much-typing" title="Permalink to this headline">¶</a></h2>
-<p>fhurl comes with a utility function <cite>fhurl</cite>, that can be used
-<cite>django.conf.urls.defaults.url</cite>.</p>
-<p>Original urlconf:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
-    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span>
-       <span class="s">&quot;fhurl.form_handler&quot;</span><span class="p">,</span>
-       <span class="p">{</span>
-           <span class="s">&#39;template&#39;</span><span class="p">:</span> <span class="s">&#39;create-book.html&#39;</span><span class="p">,</span>
-           <span class="s">&quot;form_cls&quot;</span><span class="p">:</span> <span class="n">CreateBookForm</span><span class="p">,</span>
-       <span class="p">},</span>
-    <span class="p">),</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>With <cite>fhurl</cite>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
-    <span class="n">fhurl</span><span class="p">(</span><span class="s">r&#39;^create-book/$&#39;</span><span class="p">,</span> <span class="n">CreateBookForm</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="s">&#39;create-book.html&#39;</span><span class="p">)</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
 <div class="section" id="as-you-type-ajax-validation">
 <h2>As You Type AJAX Validation<a class="headerlink" href="#as-you-type-ajax-validation" title="Permalink to this headline">¶</a></h2>
 <p><cite>form_handler</cite> can be used for validating partially filled forms for as you
@@ -453,53 +417,6 @@ type validation of web forms.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="multiple-forms-on-the-same-url">
-<h2>Multiple Forms On the Same URL<a class="headerlink" href="#multiple-forms-on-the-same-url" title="Permalink to this headline">¶</a></h2>
-<p>Sometimes it is desired to show multiple forms on the same page. While in some
-cases these forms lead to separate pages, there are situations when the same
-page should handle both forms.</p>
-<p>Consider setting pages for example. Some services split different section of
-settings page into different pages, while others prefer to show all settings on
-the same page, with each section containaing a &#8220;save&#8221; button.</p>
-<p><cite>form_handler</cite> can be used for multiple forms on the same page situations.</p>
-<p>To use in that mode, pass a dictionary containing all forms as <cite>form_cls</cite>
-parameter:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
-    <span class="n">fhurl</span><span class="p">(</span>
-        <span class="s">r&#39;^settings/$&#39;</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="s">&quot;settings.html&quot;</span><span class="p">,</span>
-        <span class="n">form_cls</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s">&#39;password_form&#39;</span><span class="p">:</span> <span class="s">&#39;myproj.myapp.forms.ChangePasswordForm&#39;</span><span class="p">,</span>
-            <span class="s">&#39;profile_form&#39;</span><span class="p">:</span> <span class="s">&#39;myproj.myapp.forms.ChangeProfileForm&#39;</span><span class="p">,</span>
-            <span class="s">&#39;email_preference_form&#39;</span><span class="p">:</span> <span class="s">&#39;myproj.myapp.forms.EmailPreferenceForm&#39;</span>
-        <span class="p">},</span> <span class="n">require_login</span><span class="o">=</span><span class="bp">True</span>
-    <span class="p">)</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>Each form will be available to the template by names <cite>password_form</cite>,
-<cite>profile_form</cite>, <cite>email_preference_form</cite> etc.</p>
-<p>Each of these forms must contain a hidden field with name <cite>fh_form</cite> and value same as the name, eg:</p>
-<div class="highlight-html+django"><div class="highlight"><pre><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;.&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;h2&gt;</span>Change Password<span class="nt">&lt;/h2&gt;</span>
-    <span class="cp">{{</span> <span class="nv">password_form</span> <span class="cp">}}</span>
-    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;fh_form&quot;</span> <span class="na">value=</span><span class="s">&quot;password_form&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Change Password&quot;</span><span class="nt">&gt;</span>
-<span class="nt">&lt;/form&gt;</span>
-<span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;.&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;h2&gt;</span>Update Profile<span class="nt">&lt;/h2&gt;</span>
-    <span class="cp">{{</span> <span class="nv">profile_form</span> <span class="cp">}}</span>
-    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;fh_form&quot;</span> <span class="na">value=</span><span class="s">&quot;profile_form&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Save&quot;</span><span class="nt">&gt;</span>
-<span class="nt">&lt;/form&gt;</span>
-<span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;.&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;h2&gt;</span>Change Email Preferences<span class="nt">&lt;/h2&gt;</span>
-    <span class="cp">{{</span> <span class="nv">email_preference_form</span> <span class="cp">}}</span>
-    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;fh_form&quot;</span> <span class="na">value=</span><span class="s">&quot;email_preference_form&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Update&quot;</span><span class="nt">&gt;</span>
-<span class="nt">&lt;/form&gt;</span>
-</pre></div>
-</div>
-</div>
 </div>
 
 
@@ -512,6 +429,7 @@ parameter:</p>
   <ul>
 <li><a class="reference internal" href="#">Django Generic Form Handler View &#8211; fhurl</a><ul>
 <li><a class="reference internal" href="#form-handler">form_handler</a></li>
+<li><a class="reference internal" href="#fhurl">fhurl</a></li>
 <li><a class="reference internal" href="#simple-form-handling">Simple Form Handling</a></li>
 <li><a class="reference internal" href="#the-url-to-be-redirected-is-variable">The URL To Be Redirected Is Variable</a></li>
 <li><a class="reference internal" href="#access-to-request-parameters-required">Access To Request Parameters Required</a></li>
@@ -519,9 +437,7 @@ parameter:</p>
 <li><a class="reference internal" href="#forms-that-take-parameters-from-url">Forms That Take Parameters From URL</a></li>
 <li><a class="reference internal" href="#doing-ajax">Doing Ajax</a></li>
 <li><a class="reference internal" href="#using-same-form-for-json-access-and-normal-web-access">Using Same Form For JSON Access And Normal Web Access</a></li>
-<li><a class="reference internal" href="#this-is-too-much-typing">This Is Too Much Typing</a></li>
 <li><a class="reference internal" href="#as-you-type-ajax-validation">As You Type AJAX Validation</a></li>
-<li><a class="reference internal" href="#multiple-forms-on-the-same-url">Multiple Forms On the Same URL</a></li>
 </ul>
 </li>
 </ul>

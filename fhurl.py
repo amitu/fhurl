@@ -195,6 +195,7 @@ def form_handler(*args, **kw):
         return _form_handler(*args, **kw)
     except ResponseReady, e:
         return e.response
+
 # fhurl # {{{
 def fhurl(reg, form_cls, decorator=lambda x: x, **kw):
     name = kw.pop("name", None)
