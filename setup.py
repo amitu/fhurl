@@ -1,8 +1,8 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name = "fhurl",
-    version = "0.1.2",
+    version = "0.1.3",
     url = 'http://packages.python.org/fhurl/',
     license = 'BSD',
     description = "Django generic form handler view",
