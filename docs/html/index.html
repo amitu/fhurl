@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Django Generic Form Handler View – fhurl &mdash; fhurl v0.1.2 documentation</title>
+    <title>Django Generic Form Handler View – fhurl &mdash; fhurl v0.1.3 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.1.2',
+        VERSION:     '0.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="fhurl v0.1.2 documentation" href="#" /> 
+    <link rel="top" title="fhurl v0.1.3 documentation" href="#" /> 
   </head>
   <body>
     <div class="related">
@@ -31,7 +31,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="#">fhurl v0.1.2 documentation</a> &raquo;</li> 
+        <li><a href="#">fhurl v0.1.3 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -48,6 +48,7 @@ forms.</p>
 <div class="highlight-python"><pre>$ easy_install fhurl</pre>
 </div>
 <p>fhurl is being developed on <a class="reference external" href="http://github.com/amitu/fhurl/">http://github.com/amitu/fhurl/</a>.</p>
+<p>See the Changelog: <a class="reference external" href="https://github.com/amitu/fhurl/blob/master/ChangeLog.rst">https://github.com/amitu/fhurl/blob/master/ChangeLog.rst</a>.</p>
 <div class="section" id="form-handler">
 <h2>form_handler<a class="headerlink" href="#form-handler" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
@@ -349,6 +350,26 @@ contains JSON encoded error messages.</p>
 returned, containing initial values, lables, help_text etc. This can be
 used to auto generate form, or to get initial values etc.</p>
 </div>
+<p>A jquery plugin for fhurl forms:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">.</span><span class="nx">fn</span><span class="p">.</span><span class="nx">handle_form</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">cb</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">unbind</span><span class="p">(</span><span class="s2">&quot;submit&quot;</span><span class="p">).</span><span class="nx">submit</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
+        <span class="nx">e</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">()</span>
+        <span class="kd">var</span> <span class="nx">form</span> <span class="o">=</span> <span class="k">this</span>
+        <span class="kd">var</span> <span class="nx">$form</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
+        <span class="nx">$</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="nx">form</span><span class="p">.</span><span class="nx">action</span><span class="p">,</span> <span class="nx">$form</span><span class="p">.</span><span class="nx">serialize</span><span class="p">(),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">d</span><span class="p">){</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">d</span><span class="p">.</span><span class="nx">success</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">if</span><span class="p">(</span><span class="nx">cb</span><span class="p">)</span> <span class="nx">cb</span><span class="p">(</span><span class="nx">d</span><span class="p">.</span><span class="nx">response</span><span class="p">)</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.error&quot;</span><span class="p">,</span> <span class="nx">form</span><span class="p">).</span><span class="nx">empty</span><span class="p">()</span>
+                <span class="nx">$</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">d</span><span class="p">.</span><span class="nx">errors</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">,</span> <span class="nx">key</span><span class="p">){</span>
+                    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#error_&quot;</span> <span class="o">+</span> <span class="nx">key</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="s2">&quot;&lt;li&gt;&quot;</span> <span class="o">+</span> <span class="nx">item</span> <span class="o">+</span> <span class="s2">&quot;&lt;/li&gt;&quot;</span><span class="p">)</span>
+                <span class="p">})</span>
+            <span class="p">}</span>
+        <span class="p">},</span> <span class="s2">&quot;json&quot;</span><span class="p">)</span>
+    <span class="p">})</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="using-same-form-for-json-access-and-normal-web-access">
 <h2>Using Same Form For JSON Access And Normal Web Access<a class="headerlink" href="#using-same-form-for-json-access-and-normal-web-access" title="Permalink to this headline">¶</a></h2>
@@ -470,7 +491,7 @@ type validation of web forms.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="#">fhurl v0.1.2 documentation</a> &raquo;</li> 
+        <li><a href="#">fhurl v0.1.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

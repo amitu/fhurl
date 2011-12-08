@@ -10,6 +10,8 @@ Install fhurl using::
 
 fhurl is being developed on http://github.com/amitu/fhurl/.
 
+See the Changelog: https://github.com/amitu/fhurl/blob/master/ChangeLog.rst.
+
 form_handler
 ------------
 
@@ -307,6 +309,29 @@ contains JSON encoded error messages.
     In ajax mode, if a GET request is made, a JSON representation of form is
     returned, containing initial values, lables, help_text etc. This can be
     used to auto generate form, or to get initial values etc.
+
+A jquery plugin for fhurl forms:
+
+.. code-block:: javascript
+
+    $.fn.handle_form = function(cb) {
+        return this.unbind("submit").submit(function(e){
+            e.preventDefault()
+            var form = this
+            var $form = $(this)
+            $.post(form.action, $form.serialize(), function(d){
+                if (d.success) {
+                    if(cb) cb(d.response)
+                } else {
+                    $(".error", form).empty()
+                    $.each(d.errors, function(item, key){
+                        $("#error_" + key).append("<li>" + item + "</li>")
+                    })
+                }
+            }, "json")
+        })
+    }
+
 
 Using Same Form For JSON Access And Normal Web Access
 -----------------------------------------------------
