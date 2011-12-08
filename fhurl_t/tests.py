@@ -92,6 +92,11 @@ False
 >>> r["location"]
 'http://testserver/john/'
 
+>>> r = c.get("/with/data/jack/")
+>>> r.status_code
+200
+>>> r.content
+
 """
 
 if __name__ == "__main__":
