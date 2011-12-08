@@ -137,25 +137,33 @@ def form_handler(
     def get_form(with_data=False):
         # TODO: allow defaults from URL?
         if isinstance(form_cls, dict):
-            assert "fh_form" in request.REQUEST
-            form = form_cls[request.REQUEST["fh_form"]]
-            form.next = next
-            forms = form_cls
-            for k, f in forms.items():
-                forms[k] = f(request) if pass_request else f()
+            if request.method == "POST":
+                assert "fh_form" in request.REQUEST
+            if "fh_form" in request.REQUEST:
+                form = form_cls[request.REQUEST["fh_form"]]
+                form = form(request) if pass_request else form()
+                form.next = next
+            else:
+                form = None
+            forms_ = {}
+            for k, f in form_cls.items():
+                forms_[k] = f(request) if pass_request else f()
+                forms_[k].fields["fh_form"] = forms.CharField(
+                    max_length="100", initial=k, widget=forms.HiddenInput
+                )
         else:
             form = form_cls(request) if pass_request else form_cls()
             form.next = next
-            forms = { "form": form }
+            forms_ = { "form": form }
         if with_data:
             form.data = request.REQUEST
             form.files = request.FILES
             form.is_bound = True
-        for f in forms.values():
+        for f in forms_.values():
             if hasattr(f, "init"):
                 res = f.init(**kwargs)
                 if res: return res
-        return form, forms
+        return form, forms_
     if is_ajax and request.method == "GET":
         return JSONResponse(get_form_representation(get_form()[0]))
     if template and request.method == "GET":
@@ -163,7 +171,7 @@ def form_handler(
             template, get_form()[1],
             context_instance=RequestContext(request)
         )
-    form, forms = get_form(with_data=True)
+    form, forms_ = get_form(with_data=True)
     if form.is_valid():
         if validate_only:
             return JSONResponse({"valid": True, "errors": {}})
@@ -198,7 +206,7 @@ def form_handler(
         return JSONResponse({ 'success': False, 'errors': form.errors })
     if template:
         return render_to_response(
-            template, forms, context_instance=RequestContext(request)
+            template, forms_, context_instance=RequestContext(request)
         )
     return JSONResponse({ 'success': False, 'errors': form.errors })
 # }}}
