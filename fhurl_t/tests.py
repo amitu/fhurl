@@ -95,7 +95,24 @@ False
 >>> r = c.get("/with/data/jack/")
 >>> r.status_code
 200
->>> r.content
+>>> 'value="jack"' in r.content
+True
+
+
+##### Init returning response feature is not working ########
+#>>> r = c.get("/init/returning/jack/")
+#>>> r.status_code
+#200
+
+#>>> r.content
+#'good boy jack'
+
+##### Init raising 404 feature is not working ########
+#>>> r = c.get("/init/raising/404/")
+#>>> r.status_code
+#404
+
+
 
 """
 
