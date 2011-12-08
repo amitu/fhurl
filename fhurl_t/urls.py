@@ -51,4 +51,12 @@ urlpatterns = patterns('',
     fhurl(
         "^init/raising/404/$", InitRaising404, template="login.html"
     ),
+    fhurl(
+        "^login/required/$", LoginFormWithRequest,
+        template="login.html", require_login=True
+    ),
+    fhurl(
+        "^login/required/with/url/$", LoginFormWithRequest,
+        template="login.html", require_login=True, login_url="/mylogin/"
+    ),
 )

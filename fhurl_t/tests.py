@@ -112,6 +112,20 @@ True
 #>>> r.status_code
 #404
 
+>>> r = c.get("/login/required/")
+>>> r.status_code
+302
+>>> r["Location"]
+'http://testserver/accounts/login/?next=/login/required/'
+
+
+>>> r = c.get("/login/required/with/url/")
+>>> r.status_code
+302
+>>> r["Location"]
+'http://testserver/mylogin/?next=/login/required/with/url/'
+
+
 
 
 """
