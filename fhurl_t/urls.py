@@ -35,6 +35,10 @@ class InitRaising404(LoginFormWithRequest):
 def custom_requirement(request):
     return request.REQUEST.get("foo") != "bar"
 
+class AjaxOnly(LoginFormWithRequest):
+    def save(self):
+        return self.cleaned_data
+
 urlpatterns = patterns('',
     fhurl(
         "^login/without/$", LoginFormWithoutRequest, template="login.html",
@@ -68,4 +72,7 @@ urlpatterns = patterns('',
         login_url="/custom/"
 
     ),
+    fhurl(
+        "^ajax/only/$", AjaxOnly, ajax=True
+    )
 )

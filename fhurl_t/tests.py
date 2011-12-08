@@ -185,6 +185,29 @@ False
 >>> d["response"]
 u'/'
 
+>>> r = c.post("/ajax/only/")
+>>> r.status_code
+200
+>>> d = json.loads(r.content)
+>>> d["success"]
+False
+>>> d["errors"]["username"]
+[u'This field is required.']
+>>> d["errors"]["password"]
+[u'This field is required.']
+
+>>> r = c.post("/ajax/only/", good_data)
+>>> r.status_code
+200
+>>> d = json.loads(r.content)
+>>> d["success"]
+True
+>>> "errors" in d
+False
+>>> d["response"]["username"]
+u'john'
+
+
 """
 
 if __name__ == "__main__":
