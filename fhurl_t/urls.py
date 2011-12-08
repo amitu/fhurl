@@ -32,6 +32,9 @@ class InitRaising404(LoginFormWithRequest):
     def init(self):
         raise Http404("not allowed")
 
+def custom_requirement(request):
+    return request.REQUEST.get("foo") != "bar"
+
 urlpatterns = patterns('',
     fhurl(
         "^login/without/$", LoginFormWithoutRequest, template="login.html",
@@ -58,5 +61,11 @@ urlpatterns = patterns('',
     fhurl(
         "^login/required/with/url/$", LoginFormWithRequest,
         template="login.html", require_login=True, login_url="/mylogin/"
+    ),
+    fhurl(
+        "^custom/requirement/$", LoginFormWithRequest,
+        template="login.html", require_login=custom_requirement,
+        login_url="/custom/"
+
     ),
 )

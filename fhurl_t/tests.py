@@ -126,7 +126,17 @@ True
 'http://testserver/mylogin/?next=/login/required/with/url/'
 
 
+>>> r = c.get("/custom/requirement/")
+>>> r.status_code
+302
+>>> r["Location"]
+'http://testserver/custom/?next=/custom/requirement/'
 
+>>> r = c.get("/custom/requirement/?foo=bar")
+>>> r.status_code
+200
+>>> r.templates[0].name
+'login.html'
 
 """
 
