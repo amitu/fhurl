@@ -4,11 +4,11 @@ from django.utils.translation import force_unicode
 from django.core.urlresolvers import get_mod_func
 from django.utils.functional import Promise
 from django.template import RequestContext
-from django.conf.urls.defaults import url
 from datetime import datetime, date
 from django.conf import settings
 from django import forms
 import urllib2
+from smarturls import surl
 try:
     import json
 except ImportError:
@@ -200,7 +200,7 @@ def form_handler(*args, **kw):
 def fhurl(reg, form_cls, decorator=lambda x: x, **kw):
     name = kw.pop("name", None)
     kw["form_cls"] = form_cls
-    return url(reg, decorator(form_handler), kw, name=name)
+    return surl(reg, decorator(form_handler), kw, name=name)
 # }}}
 
 # try_del # {{{ 

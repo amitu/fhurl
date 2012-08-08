@@ -1,3 +1,13 @@
+0.1.5 - 8-Aug-2012
+==================
+
+ * there was a problem with setup.py in last release
+
+0.1.4 - 8-Aug-2012
+==================
+
+ * added support for smarturls
+
 0.1.3 - 8-Dec-2011
 ==================
 
