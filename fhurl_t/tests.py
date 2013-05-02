@@ -1,241 +1,97 @@
-"""
->>> from django.test.client import Client
->>> import json
->>> c = Client()
->>>
-
->>> r = c.get("/login/with/")
->>> r.status_code
-200
->>> r.templates[0].name
-'login.html'
->>> 'This field is required.' in r.content
-False
-
->>> r = c.post("/login/with/")
->>> r.status_code
-200
->>> r.templates[0].name
-'login.html'
->>> len(r.content.split("This field is required."))
-3
-
->>> r = c.post("/login/with/", {"username": "john"})
->>> r.status_code
-200
->>> len(r.content.split("This field is required."))
-2
-
->>> good_data = {"username": "john", "password": "asd"}
-
->>> r = c.post("/login/with/", good_data)
->>> r.status_code
-302
->>> r.content
-''
->>> r["Location"]
-'http://testserver/'
-
->>> r = c.get("/login/without/")
->>> r.status_code
-200
->>> r.templates[0].name
-'login.html'
->>> 'This field is required.' in r.content
-False
-
->>> r = c.post("/login/without/")
->>> r.status_code
-200
->>> r.templates[0].name
-'login.html'
->>> len(r.content.split("This field is required."))
-3
-
->>> r = c.post("/login/without/", {"username": "john"})
->>> r.status_code
-200
->>> len(r.content.split("This field is required."))
-2
-
->>> r = c.post("/login/without/", good_data)
->>> r.status_code
-302
->>> r.content
-''
->>> r["Location"]
-'http://testserver/'
+from django.test import TestCase
 
 
->>> r = c.get("/with/http/")
->>> r.status_code
-200
->>> r.templates[0].name
-'login.html'
-
->>> r = c.post("/with/http/", good_data)
->>> r.status_code
-200
->>> r.content
-'hi john'
+#FIELD_REQUIRED = 'This field is required.'
+LOGIN_WITH_URL = '/login/with/'
+LOGIN_WITHOUT_URL = '/login/without/'
+WITH_HTTP_URL = '/with/http/'
+WITH_VARIABLE_REDIRECT_URL = '/with/variable/redirect/'
 
 
->>> r = c.get("/with/variable/redirect/")
->>> r.status_code
-200
->>> r.templates[0].name
-'login.html'
+class TestFhurl(TestCase):
 
->>> r = c.post("/with/variable/redirect/", good_data)
->>> r.status_code
-302
->>> r["location"]
-'http://testserver/john/'
+    def assertFormHasErrorsForFields(self, response, fields, form='form'):
+        self.assertIn(form, response.context)
+        form = response.context['form']
+        self.assertItemsEqual(form.errors.keys(), fields)
+    
+    # /login/with/
+    def test_login_with_get(self):
+        response = self.client.get(LOGIN_WITH_URL)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed('login.html')
+        self.assertFormHasErrorsForFields(response, [])
+        form = response.context['form']
+        self.assertItemsEqual(form.errors.keys(), [])
 
->>> r = c.get("/with/data/jack/")
->>> r.status_code
-200
->>> 'value="jack"' in r.content
-True
+    def test_login_with_post_no_data(self):
+        response = self.client.post(LOGIN_WITH_URL)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed('login.html')
+        self.assertFormHasErrorsForFields(response, ['username', 'password'])
 
+    def test_login_with_post_missing_password(self):
+        response = self.client.post(LOGIN_WITH_URL, {'username': 'john'})
+        self.assertEqual(response.status_code, 200)
+        self.assertFormHasErrorsForFields(response, ['password'])
 
-##### Init returning response feature is not working ########
->>> r = c.get("/init/returning/jack/")
->>> r.status_code
-200
+    def test_login_with_post_proper_data(self):
+        data = {'username': 'john', 'password': 'asd'}
+        response = self.client.post(LOGIN_WITH_URL, data)
+        self.assertRedirects(response, '/', target_status_code=404)
 
->>> r.content
-'good boy jack'
+    # /login/without/
+    def test_login_without_get(self):
+        response = self.client.get(LOGIN_WITHOUT_URL)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'login.html')
+        self.assertFormHasErrorsForFields(response, [])
 
-##### Init raising 404 feature is not working ########
->>> r = c.get("/init/raising/404/")
->>> r.status_code
-404
+    def test_login_without_no_data(self):
+        response = self.client.post(LOGIN_WITHOUT_URL)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'login.html')
+        self.assertFormHasErrorsForFields(response, ['username', 'password'])
 
->>> r = c.get("/login/required/")
->>> r.status_code
-302
->>> r["Location"]
-'http://testserver/accounts/login/?next=/login/required/'
+    def test_login_without_missing_password(self):
+        response = self.client.post(LOGIN_WITHOUT_URL, {'username': 'john'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'login.html')
+        self.assertFormHasErrorsForFields(response, ['password'])
 
+    def test_login_without_proper_data(self):
+        data = {'username': 'john', 'password': 'asd'}
+        response = self.client.post(LOGIN_WITHOUT_URL, data)
+        self.assertRedirects(response, '/', target_status_code=404)
 
->>> r = c.get("/login/required/with/url/")
->>> r.status_code
-302
->>> r["Location"]
-'http://testserver/mylogin/?next=/login/required/with/url/'
+    # /with/http/
+    def test_with_http(self):
+        response = self.client.get(WITH_HTTP_URL)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'login.html')
 
+    def test_with_http_proper_data(self):
+        data = {'username': 'john', 'password': 'asd'}
+        response = self.client.post(WITH_HTTP_URL, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, 'hi john')
 
->>> r = c.get("/custom/requirement/")
->>> r.status_code
-302
->>> r["Location"]
-'http://testserver/custom/?next=/custom/requirement/'
+    # /with/variable/redirect/
+    def test_var_redirect(self):
+        response = self.client.get(WITH_VARIABLE_REDIRECT_URL)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'login.html')
 
->>> r = c.get("/custom/requirement/?foo=bar")
->>> r.status_code
-200
->>> r.templates[0].name
-'login.html'
+    def test_var_redirect_proper_data(self):
+        data = {'username': 'john', 'password': 'asd'}
+        response = self.client.post(WITH_VARIABLE_REDIRECT_URL, data)
+        self.assertRedirects(response, '/john/', target_status_code=404)
 
+    # /with/data/:username/
+    def test_with_data_username(self):
+        response = self.client.get('/with/data/joe/')
+        self.assertEqual(response.status_code, 200)
+        form = response.context['form']
+        username_field = form.fields['username']
+        self.assertEqual(username_field.initial, 'joe')
 
-#### AJAX test ####
-
->>> r = c.get("/login/with/?json=true")
->>> r.status_code
-200
->>> d = json.loads(r.content)
->>> d["username"]["required"]
-True
->>> d["username"]["label"]
-u'Username'
->>> d["password"]["required"]
-True
-
->>> r = c.post("/login/with/?json=true")
->>> r.status_code
-200
->>> d = json.loads(r.content)
->>> d["success"]
-False
->>> d["errors"]["username"]
-[u'This field is required.']
->>> d["errors"]["password"]
-[u'This field is required.']
-
->>> r = c.post("/login/with/?json=true", {"username": "john"})
->>> r.status_code
-200
->>> d = json.loads(r.content)
->>> d["success"]
-False
->>> "username" in d["errors"]
-False
->>> d["errors"]["password"]
-[u'This field is required.']
-
->>> r = c.post("/login/with/?json=true", good_data)
->>> r.status_code
-200
->>> d = json.loads(r.content)
->>> d["success"]
-True
->>> "errors" in d
-False
->>> d["response"]
-u'/'
-
->>> r = c.post("/ajax/only/")
->>> r.status_code
-200
->>> d = json.loads(r.content)
->>> d["success"]
-False
->>> d["errors"]["username"]
-[u'This field is required.']
->>> d["errors"]["password"]
-[u'This field is required.']
-
->>> r = c.post("/ajax/only/", good_data)
->>> r.status_code
-200
->>> d = json.loads(r.content)
->>> d["success"]
-True
->>> "errors" in d
-False
->>> d["response"]["username"]
-u'john'
-
->>> r = c.post("/both/ajax/and/web/", good_data)
->>> r.content
-'hi john'
-
->>> r = c.post("/both/ajax/and/web/?json=true", good_data)
->>> d = json.loads(r.content)
->>> d["success"]
-True
->>> "errors" in d
-False
->>> d["response"]["username"]
-u'john'
-
->>> r = c.post("/both/ajax/and/web/?validate_only=true", {})
->>> d = json.loads(r.content)
->>> d["valid"]
-False
->>> d["errors"]["username"]
-[u'This field is required.']
->>> d["errors"]["password"]
-[u'This field is required.']
-
->>> r = c.post("/both/ajax/and/web/?validate_only=true", good_data)
->>> d = json.loads(r.content)
->>> d["valid"]
-True
-
-"""
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()

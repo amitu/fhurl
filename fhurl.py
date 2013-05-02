@@ -1,6 +1,9 @@
 # {{{
 from django.http import HttpResponseRedirect, Http404, HttpResponse
-from django.utils.translation import force_unicode
+try:
+    from django.utils.translation import force_unicode
+except ImportError:
+    from django.utils.encoding import force_unicode
 from django.core.urlresolvers import get_mod_func
 from django.utils.functional import Promise
 from django.template import RequestContext
