@@ -13,21 +13,20 @@ class TestFhurl(TestCase):
     def assertFormHasErrorsForFields(self, response, fields, form='form'):
         self.assertIn(form, response.context)
         form = response.context['form']
-        self.assertItemsEqual(form.errors.keys(), fields)
+        self.assertEquals(sorted(form.errors.keys()), sorted(fields))
     
     # /login/with/
     def test_login_with_get(self):
         response = self.client.get(LOGIN_WITH_URL)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed('login.html')
+        self.assertTemplateUsed(response, 'login.html')
         self.assertFormHasErrorsForFields(response, [])
-        form = response.context['form']
-        self.assertItemsEqual(form.errors.keys(), [])
+        self.assertFormHasErrorsForFields(response, [])
 
     def test_login_with_post_no_data(self):
         response = self.client.post(LOGIN_WITH_URL)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed('login.html')
+        self.assertTemplateUsed(response, 'login.html')
         self.assertFormHasErrorsForFields(response, ['username', 'password'])
 
     def test_login_with_post_missing_password(self):
@@ -74,7 +73,7 @@ class TestFhurl(TestCase):
         data = {'username': 'john', 'password': 'asd'}
         response = self.client.post(WITH_HTTP_URL, data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, 'hi john')
+        self.assertEqual(response.content.decode(), 'hi john')
 
     # /with/variable/redirect/
     def test_var_redirect(self):
@@ -99,7 +98,7 @@ class TestFhurl(TestCase):
     def test_init_returning_user(self):
         response = self.client.get('/init/returning/jack/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, 'good boy jack')
+        self.assertEqual(response.content.decode(), 'good boy jack')
 
     def test_init_raising_404(self):
         response = self.client.get('/init/raising/404/')
@@ -118,13 +117,13 @@ class TestFhurl(TestCase):
     def test_custom_requirement(self):
         response = self.client.get('/custom/requirement/?foo=bar')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed('login.html')
+        self.assertTemplateUsed(response, 'login.html')
 
     # AJAX tests
     def test_login_with_json(self):
         response = self.client.get('/login/with/?json=true')
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode())
         self.assertEqual(data['username']['label'], 'Username')
         self.assertTrue(data['username']['required'])
         self.assertTrue(data['password']['required'])
@@ -132,7 +131,7 @@ class TestFhurl(TestCase):
     def test_login_with_json_post_no_data(self):
         response = self.client.post('/login/with/?json=true')
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode())
         self.assertFalse(data['success'])
         self.assertIn('username', data['errors'])
         self.assertIn('password', data['errors'])
@@ -141,7 +140,7 @@ class TestFhurl(TestCase):
         params = {'username': 'john'}
         response = self.client.post('/login/with/?json=true', params)
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode())
         self.assertFalse(data['success'])
         self.assertIn('password', data['errors'])
 
@@ -149,14 +148,14 @@ class TestFhurl(TestCase):
         params = {'username': 'john', 'password': 'asd'}
         response = self.client.post('/login/with/?json=true', params)
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode())
         self.assertTrue(data['success'])
         self.assertNotIn('errors', data)
 
     def test_ajax_only(self):
         response = self.client.post('/ajax/only/')
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode())
         self.assertFalse(data['success'])
         self.assertIn('username', data['errors'])
         self.assertIn('password', data['errors'])
@@ -165,7 +164,7 @@ class TestFhurl(TestCase):
         params = {'username': 'john', 'password': 'asd'}
         response = self.client.post('/ajax/only/', params)
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode())
         self.assertTrue(data['success'])
         self.assertNotIn('errors', data)
         self.assertEqual(data['response']['username'], 'john')
@@ -174,13 +173,13 @@ class TestFhurl(TestCase):
         params = {'username': 'john', 'password': 'asd'}
         response = self.client.post('/both/ajax/and/web/', params)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, 'hi john')
+        self.assertEqual(response.content.decode(), 'hi john')
 
     def test_both_json(self):
         params = {'username': 'john', 'password': 'asd'}
         response = self.client.post('/both/ajax/and/web/?json=true', params)
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode())
         self.assertTrue(data['success'])
         self.assertNotIn('errors', data)
         self.assertEqual(data['response']['username'], 'john')
@@ -188,7 +187,7 @@ class TestFhurl(TestCase):
     def test_both_json_validate_only(self):
         response = self.client.post('/both/ajax/and/web/?validate_only=true', {})
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode())
         self.assertFalse(data['valid'])
         self.assertIn('username', data['errors'])
         self.assertIn('password', data['errors'])
@@ -198,7 +197,7 @@ class TestFhurl(TestCase):
         response = self.client.post('/both/ajax/and/web/?validate_only=true',
             params)
         self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode())
         self.assertTrue(data['valid'])
         self.assertEqual(data['errors'], {})
 

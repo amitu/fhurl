@@ -1,21 +1,27 @@
 # {{{
+import sys
+import json
+import urllib
 from django.http import HttpResponseRedirect, Http404, HttpResponse
-try:
-    from django.utils.translation import force_unicode
-except ImportError:
-    from django.utils.encoding import force_unicode
 from django.core.urlresolvers import get_mod_func
 from django.utils.functional import Promise
 from django.template import RequestContext
 from datetime import datetime, date
 from django.conf import settings
 from django import forms
-import urllib2
 from smarturls import surl
-try:
-    import json
-except ImportError:
-    from django.utils import simplejson as json
+
+if sys.version_info < (3,):
+    try:
+        from django.utils.translation import force_unicode
+    except ImportError:
+        from django.utils.encoding import force_unicode
+    from urllib import quote as urlquote
+else:
+    # In Python 3 force_unicode does not exist for Django 1.5
+    force_unicode = lambda text: text
+    basestring = str
+    from urllib.parse import quote as urlquote
 # }}}
 
 # JSONEncoder # {{{ 
@@ -127,7 +133,7 @@ def _form_handler(
         require_login = not request.user.is_authenticated()
     if require_login:
         redirect_url = "%s?next=%s" % (
-            login_url, urllib2.quote(request.get_full_path())
+            login_url, urlquote(request.get_full_path())
         ) # FIXME
         if is_ajax:
             return JSONResponse({ 'success': False, 'redirect': redirect_url })
@@ -196,7 +202,7 @@ def _form_handler(
 def form_handler(*args, **kw):
     try:
         return _form_handler(*args, **kw)
-    except ResponseReady, e:
+    except ResponseReady as e:
         return e.response
 
 # fhurl # {{{
