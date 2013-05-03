@@ -1,10 +1,5 @@
 """
-Unit tests runner for ``django-guardian`` based on boundled example project.
-Tests are independent from this example application but setuptools need
-instructions how to interpret ``test`` command when we run::
-
-    python setup.py test
-
+Unit tests runner for ``fhurl`` based on boundled example project (fhurl_t).
 """
 import os
 import sys
