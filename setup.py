@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = "fhurl",
-    version = "0.1.5",
+    version = "0.1.7",
     url = 'http://packages.python.org/fhurl/',
     license = 'BSD',
     description = "Django generic form handler view",

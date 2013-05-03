@@ -1,3 +1,9 @@
+0.1.6 - 3-May-2013
+==================
+
+ * compatibility with python3.3/django1.5
+ * test across all python/django versions using tox
+
 0.1.5 - 8-Aug-2012
 ==================
 

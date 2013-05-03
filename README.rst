@@ -7,3 +7,9 @@ Use tox command in shell:
 
     $ tox
 
+AUTHORS
+=======
+
+ * amitu
+ * newz2000
+ * lukaszb

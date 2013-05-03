@@ -2,6 +2,7 @@
 *.pyc
 *.log
 *.sqlite
+*~
 .installed.cfg
 bin
 develop-eggs
@@ -12,3 +13,4 @@ parts
 ROOT/*.egg-info
 *.egg-info
 build
+.tox
