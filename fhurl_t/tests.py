@@ -1,7 +1,7 @@
+import json
 from django.test import TestCase
 
 
-#FIELD_REQUIRED = 'This field is required.'
 LOGIN_WITH_URL = '/login/with/'
 LOGIN_WITHOUT_URL = '/login/without/'
 WITH_HTTP_URL = '/with/http/'
@@ -94,4 +94,111 @@ class TestFhurl(TestCase):
         form = response.context['form']
         username_field = form.fields['username']
         self.assertEqual(username_field.initial, 'joe')
+
+    # /init/returning/jack/
+    def test_init_returning_user(self):
+        response = self.client.get('/init/returning/jack/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, 'good boy jack')
+
+    def test_init_raising_404(self):
+        response = self.client.get('/init/raising/404/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_login_required(self):
+        response = self.client.get('/login/required/')
+        location = 'http://testserver/accounts/login/?next=/login/required/'
+        self.assertEqual(response['Location'], location)
+
+    def test_login_required_with_url(self):
+        response = self.client.get('/login/required/with/url/')
+        location = 'http://testserver/mylogin/?next=/login/required/with/url/'
+        self.assertEqual(response['Location'], location)
+
+    def test_custom_requirement(self):
+        response = self.client.get('/custom/requirement/?foo=bar')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed('login.html')
+
+    # AJAX tests
+    def test_login_with_json(self):
+        response = self.client.get('/login/with/?json=true')
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(data['username']['label'], 'Username')
+        self.assertTrue(data['username']['required'])
+        self.assertTrue(data['password']['required'])
+
+    def test_login_with_json_post_no_data(self):
+        response = self.client.post('/login/with/?json=true')
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertFalse(data['success'])
+        self.assertIn('username', data['errors'])
+        self.assertIn('password', data['errors'])
+
+    def test_login_with_json_post_missing_password(self):
+        params = {'username': 'john'}
+        response = self.client.post('/login/with/?json=true', params)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertFalse(data['success'])
+        self.assertIn('password', data['errors'])
+
+    def test_login_with_json_post_proper_data(self):
+        params = {'username': 'john', 'password': 'asd'}
+        response = self.client.post('/login/with/?json=true', params)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertTrue(data['success'])
+        self.assertNotIn('errors', data)
+
+    def test_ajax_only(self):
+        response = self.client.post('/ajax/only/')
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertFalse(data['success'])
+        self.assertIn('username', data['errors'])
+        self.assertIn('password', data['errors'])
+
+    def test_ajax_only_proper_data(self):
+        params = {'username': 'john', 'password': 'asd'}
+        response = self.client.post('/ajax/only/', params)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertTrue(data['success'])
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['response']['username'], 'john')
+
+    def test_both(self):
+        params = {'username': 'john', 'password': 'asd'}
+        response = self.client.post('/both/ajax/and/web/', params)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, 'hi john')
+
+    def test_both_json(self):
+        params = {'username': 'john', 'password': 'asd'}
+        response = self.client.post('/both/ajax/and/web/?json=true', params)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertTrue(data['success'])
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['response']['username'], 'john')
+
+    def test_both_json_validate_only(self):
+        response = self.client.post('/both/ajax/and/web/?validate_only=true', {})
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertFalse(data['valid'])
+        self.assertIn('username', data['errors'])
+        self.assertIn('password', data['errors'])
+
+    def test_both_json_validate_only_validate_only(self):
+        params = {'username': 'john', 'password': 'asd'}
+        response = self.client.post('/both/ajax/and/web/?validate_only=true',
+            params)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertTrue(data['valid'])
+        self.assertEqual(data['errors'], {})
 
