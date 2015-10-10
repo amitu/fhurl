@@ -307,7 +307,7 @@ contains JSON encoded error messages.
 .. note::
 
     In ajax mode, if a GET request is made, a JSON representation of form is
-    returned, containing initial values, lables, help_text etc. This can be
+    returned, containing initial values, labels, help_text etc. This can be
     used to auto generate form, or to get initial values etc.
 
 A jquery plugin for fhurl forms:
