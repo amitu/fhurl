@@ -24,7 +24,7 @@ else:
     from urllib.parse import quote as urlquote
 # }}}
 
-# JSONEncoder # {{{ 
+# JSONEncoder # {{{
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, Promise):
@@ -35,7 +35,7 @@ class JSONEncoder(json.JSONEncoder):
             return o.strftime('%Y-%m-%d')
         else:
             return super(JSONEncoder, self).default(o)
-# }}} 
+# }}}
 
 # JSONResponse # {{{
 class JSONResponse(HttpResponse):
@@ -43,7 +43,7 @@ class JSONResponse(HttpResponse):
         HttpResponse.__init__(
             self, content=json.dumps(data, cls=JSONEncoder),
             content_type="application/json"
-        ) 
+        )
 # }}}
 
 # get_form_representation # {{{
@@ -115,19 +115,19 @@ def _form_handler(
     Some ajax heavy apps require a lot of views that are merely a wrapper
     around the form. This generic view can be used for them.
     """
-    if "next" in request.REQUEST: next = request.REQUEST["next"]
+    if "next" in request.GET: next = request.REQUEST["next"]
     from django.shortcuts import render_to_response
-    is_ajax = request.is_ajax() or ajax or request.REQUEST.get("json")=="true"
+    is_ajax = request.is_ajax() or ajax or request.GET.get("json")=="true"
     if isinstance(form_cls, basestring):
         # can take form_cls of the form: "project.app.forms.FormName"
         mod_name, form_name = get_mod_func(form_cls)
         form_cls = getattr(__import__(mod_name, {}, {}, ['']), form_name)
     validate_only = (
-        validate_only or request.REQUEST.get("validate_only") == "true"
+        validate_only or request.GET.get("validate_only") == "true"
     )
     if login_url is None:
         login_url = getattr(settings, "LOGIN_URL", "/login/")
-    if callable(require_login): 
+    if callable(require_login):
         require_login = require_login(request)
     elif require_login:
         require_login = not request.user.is_authenticated()
@@ -145,7 +145,7 @@ def _form_handler(
         form = form_cls(request) if pass_request else form_cls()
         form.next = next
         if with_data:
-            form.data = request.REQUEST
+            form.data = request.GET
             form.files = request.FILES
             form.is_bound = True
         if hasattr(form, "init"):
@@ -184,8 +184,8 @@ def _form_handler(
             }
         )
     if validate_only:
-        if "field" in request.REQUEST:
-            errors = form.errors.get(request.REQUEST["field"], "")
+        if "field" in request.GET:
+            errors = form.errors.get(request.GET["field"], "")
             if errors: errors = "".join(errors)
         else:
             errors = form.errors
@@ -212,11 +212,11 @@ def fhurl(reg, form_cls, decorator=lambda x: x, **kw):
     return surl(reg, decorator(form_handler), kw, name=name)
 # }}}
 
-# try_del # {{{ 
+# try_del # {{{
 def try_del(d, *args):
     for f in args:
         try:
             del d[f]
         except KeyError: pass
     return d
-# }}} 
+# }}}
