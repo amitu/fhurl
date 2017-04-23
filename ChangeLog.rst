@@ -1,3 +1,9 @@
+0.1.9 - 23-Apr-2017
+===================
+
+ * moved from render_to_response() to render(), backward incompatible.
+
+
 0.1.6 - 3-May-2013
 ==================
 
