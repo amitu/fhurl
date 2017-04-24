@@ -23,6 +23,7 @@ else:
     from urllib.parse import quote as urlquote
 
 
+
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, Promise):
@@ -121,6 +122,7 @@ def _form_handler(
     Some ajax heavy apps require a lot of views that are merely a wrapper
     around the form. This generic view can be used for them.
     """
+    RESULT_KEY = getattr(settings, "RESULT_KEY", "response")
     request.REQUEST = request.GET.copy()
     request.REQUEST.update(request.POST)
     if "next" in request.REQUEST:
@@ -177,7 +179,7 @@ def _form_handler(
             return JSONResponse(
                 {
                     'success': True,
-                    'response': (
+                    RESULT_KEY: (
                         form.get_json(r) if hasattr(form, "get_json") else r
                     )
                 }
@@ -191,7 +193,7 @@ def _form_handler(
         return JSONResponse(
             {
                 'success': True,
-                'response': (
+                RESULT_KEY: (
                     form.get_json(r) if hasattr(form, "get_json") else r
                 )
             }
