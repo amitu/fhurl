@@ -1,7 +1,11 @@
 import sys
 import json
 from django.http import HttpResponseRedirect, Http404, HttpResponse
-from django.core.urlresolvers import get_mod_func
+from django import VERSION
+if VERSION[0] >= 2:
+    from django.urls import get_mod_func
+else:
+    from django.core.urlresolvers import get_mod_func
 from django.utils.functional import Promise
 from django.template import RequestContext
 from django.shortcuts import render
